@@ -1,0 +1,211 @@
+# vhost for ${vmname}
+
+nginx::resource::upstream { '${vmname}':
+  members => [
+    '${vmip}:443',
+  ],
+}
+
+nginx::resource::upstream { '${vmname}-exporter-node':
+  members => [
+    '${vmip}:9100',
+  ],
+}
+
+nginx::resource::upstream { '${vmname}-exporter-mysql':
+  members => [
+    '${vmip}:9104',
+  ],
+}
+
+nginx::resource::upstream { '${vmname}-exporter-apache':
+  members => [
+    '${vmip}:9117',
+  ],
+}
+
+nginx::resource::upstream { '${vmname}-exporter-redis':
+  members => [
+    '${vmip}:9121',
+  ],
+}
+
+nginx::resource::upstream { '${vmname}-exporter-php-fpm':
+  members => [
+    '${vmip}:9253',
+  ],
+}
+
+nginx::resource::upstream { '${vmname}-exporter-process':
+  members => [
+    '${vmip}:9256',
+  ],
+}
+
+nginx::resource::server { '${vmname_full}':
+  proxy       => 'https://${vmname}',
+  ssl         => true,
+  listen_port => 443,
+  ssl_dhparam => '/etc/ssl/dhparams.pem',
+  ssl_cert    => '/etc/ssl/certs/${ssl_cert}',
+  ssl_key     => '/etc/ssl/private/${ssl_key}',
+  #ssl_ciphers => 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA',
+  ssl_ciphers => 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA:!3DES:!DES-CBC3-SHA',
+  ##
+  #ssl_stapling        => true,
+  #ssl_stapling_verify => true,
+  #ssl_trusted_cert    => '/etc/ssl/certs/ca_rapidssl_stapling.pem',
+  #
+  ssl_protocols       => 'TLSv1.2 TLSv1.3',
+  #
+  server_cfg_append => {
+    #'access_log' => '/var/log/nginx/ssl-ocb2c.access.zabbix.log timed_combined',
+
+    'add_header' => [
+      'Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"',
+      #'X-Frame-Options "SAMEORIGIN" always',
+      #'X-Xss-Protection "1; mode=block" always',
+      #'X-Content-Type-Options "nosniff"',
+      #                        'Content-Security-Policy "default-src \'self\'; script-src \'self\'; object-src \'self\'"',
+      #'Content-Security-Policy "default-src \'self\'; script-src \'self\' \'unsafe-inline\' \'unsafe-eval\'; object-src \'self\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' ;"',
+      'Referrer-Policy "no-referrer, strict-origin-when-cross-origin"',
+    ],
+  },
+  add_header => {
+  },
+  location_cfg_append => {
+    'proxy_set_header'   => [
+      # because: Inet <-> HTTPS (nginx) <-> HTTP (apache)
+      #'X-Forwarded-Proto $scheme',
+      # because: compression moved to nginx:
+      'Accept-Encoding ""',
+    ],
+    #
+    #'proxy_send_timeout' => '600',
+    'send_timeout'       => '600',
+    #because: better security
+    'add_header' => [
+      'Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"',
+      #'X-Frame-Options           "SAMEORIGIN" always',
+      #'X-Xss-Protection          "1; mode=block" always',
+      #'X-Content-Type-Options    "nosniff"',
+      #'Content-Security-Policy   "default-src \'self\'; script-src \'self\'; object-src \'self\'"',
+      #'Content-Security-Policy   "default-src \'self\'; script-src \'self\' \'unsafe-inline\' \'unsafe-eval\'; object-src \'self\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' ; "',
+      'Referrer-Policy           "no-referrer, strict-origin-when-cross-origin"',
+    ],
+  },
+  proxy_connect_timeout => '600',
+  proxy_read_timeout => '600',
+  proxy_hide_header => ['X-Powered-BY'],
+}
+
+nginx::resource::location { '${vmname_full}-node':
+  ensure          => present,
+  www_root        => undef,
+  ssl             => true,
+  ssl_only        => true,
+  server          => '${vmname_full}',
+  location        => '/exporter-node/metrics',
+  proxy           => 'http://${vmname}-exporter-node/metrics',
+  location_allow  => [
+    '127.0.0.1', '::1', #localhost
+    '172.16.2.133', # grafana
+  ],
+  location_deny   => ['all'],
+}
+
+nginx::resource::location { '${vmname_full}-mysql':
+  ensure          => present,
+  www_root        => undef,
+  ssl             => true,
+  ssl_only        => true,
+  server          => '${vmname_full}',
+  location        => '/exporter-mysql/metrics',
+  proxy           => 'http://${vmname}-exporter-mysql/metrics',
+  location_allow  => [
+    '127.0.0.1', '::1', #localhost
+    '172.16.2.133', # grafana
+  ],
+  location_deny   => ['all'],
+}
+
+nginx::resource::location { '${vmname_full}-apache':
+  ensure          => present,
+  www_root        => undef,
+  ssl             => true,
+  ssl_only        => true,
+  server          => '${vmname_full}',
+  location        => '/exporter-apache/metrics',
+  proxy           => 'http://${vmname}-exporter-apache/metrics',
+  location_allow  => [
+    '127.0.0.1', '::1', #localhost
+    '172.16.2.133', # grafana
+  ],
+  location_deny   => ['all'],
+}
+
+nginx::resource::location { '${vmname_full}-redis':
+  ensure          => present,
+  www_root        => undef,
+  ssl             => true,
+  ssl_only        => true,
+  server          => '${vmname_full}',
+  location        => '/exporter-redis/metrics',
+  proxy           => 'http://${vmname}-exporter-redis/metrics',
+  location_allow  => [
+    '127.0.0.1', '::1', #localhost
+    '172.16.2.133', # grafana
+  ],
+  location_deny   => ['all'],
+}
+
+nginx::resource::location { '${vmname_full}-php-fpm':
+  ensure          => present,
+  www_root        => undef,
+  ssl             => true,
+  ssl_only        => true,
+  server          => '${vmname_full}',
+  location        => '/exporter-php-fpm/metrics',
+  proxy           => 'http://${vmname}-exporter-php-fpm/metrics',
+  location_allow  => [
+    '127.0.0.1', '::1', #localhost
+    '172.16.2.133', # grafana
+  ],
+  location_deny   => ['all'],
+}
+
+nginx::resource::server { '${vmname_full} ${vmname}':
+  ssl         => false,
+  www_root    => "/var/www/html",
+  location_cfg_append => {
+    'rewrite' => '^ https://$server_name$request_uri? permanent',
+    'proxy_set_header'   => [
+      # because: Inet <-> HTTPS (nginx) <-> HTTP (apache)
+      #'X-Forwarded-Proto $scheme',
+      # because: compression moved to nginx:
+      'Accept-Encoding ""',
+    ],
+    #because: better security
+    'add_header' => [
+      #'Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"',
+      'X-Frame-Options           "SAMEORIGIN" always',
+      'X-Xss-Protection          "1; mode=block" always',
+      'X-Content-Type-Options    "nosniff"',
+      #'Content-Security-Policy   "default-src \'self\'; script-src \'self\'; object-src \'self\'"',
+      'Content-Security-Policy   "default-src \'self\'; script-src \'self\'; object-src \'self\'; style-src \'self\'; "',
+      'Referrer-Policy           "no-referrer, strict-origin-when-cross-origin"',
+    ],
+  },
+  server_cfg_append => {
+    'add_header' => [
+      #'Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"',
+      'X-Frame-Options "SAMEORIGIN" always',
+      'X-Xss-Protection "1; mode=block" always',
+      'X-Content-Type-Options "nosniff"',
+      #                        'Content-Security-Policy "default-src \'self\'; script-src \'self\'; object-src \'self\'"',
+      'Content-Security-Policy "default-src \'self\'; script-src \'self\'; object-src \'self\'; style-src \'self\'; "',
+      'Referrer-Policy "no-referrer, strict-origin-when-cross-origin"',
+    ],
+  },
+  proxy_hide_header => ['X-Powered-BY'],
+}
