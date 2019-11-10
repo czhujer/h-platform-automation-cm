@@ -37,10 +37,10 @@
 #
 
 class {'jenkins::slave':
-  masterurl         => 'https://hpa-jenkins',
+  masterurl         => 'https://hpa-hq1',
   install_java      => true,
   labels            => "debian debian9 hpa-pxm1",
-  version           => "3.7",
+  version           => '3.17',
   slave_name        => "hpa-pxm1",
   executors         => 4,
   disable_ssl_verification => true,
