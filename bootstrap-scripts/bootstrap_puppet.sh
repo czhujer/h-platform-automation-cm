@@ -11,14 +11,14 @@
   gem install puppet-module --no-ri --no-rdoc #--install-dir /usr/share/gems
   gem install ruby-augeas --no-ri --no-rdoc #--install-dir /usr/share/gems
   gem install syck --no-ri --no-rdoc #--install-dir /usr/share/gems
-  gem install puppet --no-ri --no-rdoc -v5.5.10 #--install-dir /usr/share/gems
+  gem install puppet --no-ri --no-rdoc -v5.5.17 #--install-dir /usr/share/gems
 
   # install r10k
-  gem install --no-rdoc --no-ri r10k -v3.1.0 #--install-dir /usr/share/gems
+  gem install --no-rdoc --no-ri r10k -v3.3.3 #--install-dir /usr/share/gems
 
   #remove old gems
-  gem uninstall puppet --version '<5.5.10' -a
-  gem uninstall r10k --version '<3.1.0' -a
+  gem uninstall puppet --version '<5.5.17' -a
+  gem uninstall r10k --version '<3.3.3' -a
 
   if [ ! -L /etc/puppetlabs/code/modules ]; then
     rm -rf /etc/puppetlabs/code/modules;
