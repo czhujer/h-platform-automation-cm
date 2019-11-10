@@ -13,6 +13,7 @@ apt::source { 'nginx':
  key      => {
    'id'     => '573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62',
  },
+  before  => Class['nginx'],
 }
 
 class { 'nginx':
