@@ -4,7 +4,7 @@
 
 class { 'jenkins':
    configure_firewall => false,
-   install_java       => false,
+   install_java       => true,
    lts                => false,
    cli                => false,
    cli_tries  => 2,
@@ -250,19 +250,20 @@ jenkins::plugin { 'copyartifact':
 jenkins::plugin { 'log-parser':
 }
 
-# file { '/var/lib/jenkins/userContent':
-#   ensure => directory,
-#   owner  => 'root',
-#   group  => 'root',
-#   mode   => '755',
-# }
+file { '/var/lib/jenkins/userContent':
+  ensure  => directory,
+  owner   => 'root',
+  group   => 'root',
+  mode    => '755',
+  require => Class['jenkins'],
+}
 
 file { '/var/lib/jenkins/userContent/parsing_rules':
-    ensure => directory,
-    owner  => 'root',
-    group  => 'root',
-    mode   => '755',
-    require => Class['jenkins'],
+  ensure  => directory,
+  owner   => 'root',
+  group   => 'root',
+  mode    => '755',
+  require => File['/var/lib/jenkins/userContent'],
 }
 
 $puppet_parse_c = 'error /^Error:/
