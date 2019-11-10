@@ -27,7 +27,7 @@ Vagrant.configure('2') do |config|
       end
 
       if name == "hpa-pxm1"
-        config.vm.provision :shell, :inline => "apt-get update", :privileged => true
+        config.vm.provision :shell, :inline => "apt-get update && apt-get install -y sshfs", :privileged => true
       end
 
       config.vm.synced_folder '.', '/vagrant', type: 'sshfs'
@@ -75,12 +75,12 @@ Vagrant.configure('2') do |config|
         host.vm.provision :shell, :inline => "echo 'starting r10k install .. and puppet apply...'"
 
         host.vm.provision :shell, :inline => "cd /vagrant && cp r10k-puppetfiles/Puppetfile-proxmox-master /etc/puppet/Puppetfile", :privileged => true
-        host.vm.provision :shell, :inline => "source /opt/rh/rh-ruby25/enable; cd /etc/puppet && r10k puppetfile install --force --puppetfile /etc/puppet/Puppetfile", :privileged => true
+        host.vm.provision :shell, :inline => "source /etc/profile.d/rvm.sh; cd /etc/puppet && r10k puppetfile install --force --puppetfile /etc/puppet/Puppetfile", :privileged => true
 
         #host.vm.provision :shell, :inline => "source /opt/rh/rh-ruby25/enable; facter", :privileged => true
 
         host.vm.provision :shell, :inline => "cd /vagrant && cp configs-servers/hpa-hq1/*.pp /etc/puppet/manifests/", :privileged => true
-        host.vm.provision :shell, :inline => "source /opt/rh/rh-ruby25/enable; puppet apply --color=false --detailed-exitcodes /etc/puppet/manifests; retval=$?; if [[ $retval -eq 2 ]]; then exit 0; else exit $retval; fi;", :privileged => true
+        host.vm.provision :shell, :inline => "source /etc/profile.d/rvm.sh; puppet apply --color=false --detailed-exitcodes /etc/puppet/manifests; retval=$?; if [[ $retval -eq 2 ]]; then exit 0; else exit $retval; fi;", :privileged => true
 
       end
     end

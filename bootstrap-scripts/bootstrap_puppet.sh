@@ -14,7 +14,7 @@
   gem install puppet --no-document -v5.5.17 #--install-dir /usr/share/gems
 
   # install r10k
-  gem install --no-rdoc --no-ri r10k -v3.3.3 #--install-dir /usr/share/gems
+  gem install --no-document r10k -v3.3.3 #--install-dir /usr/share/gems
 
   #remove old gems
   gem uninstall puppet --version '<5.5.17' -a

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Install dependencies for RVM and Ruby...
-apt-get install curl gnupg2 dirmngr patch, gawk, g++, gcc, autoconf, automake, bison, libc6-dev, libffi-dev, libgdbm-dev, libncurses5-dev, libsqlite3-dev, libtool, libyaml-dev, make, patch, pkg-config, sqlite3, zlib1g-dev, libgmp-dev, libreadline-dev, libssl-dev -y
+apt-get install curl gnupg2 dirmngr libaugeas-dev git -y
 
 # import signing key
 if which gpg2 &>/dev/null; then
