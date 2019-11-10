@@ -1,84 +1,69 @@
 # config for r10k
 
-mod 'puppetlabs-concat', '5.1.0'
+# 'puppet-nginx' (v0.15.0) requires 'puppetlabs-concat' (>= 3.0.0 < 6.0.0)
+mod 'puppetlabs-concat', '5.3.0'
 
-mod 'puppetlabs-stdlib', '4.25.1'
+mod 'puppetlabs-stdlib', '5.2.0'
 
-mod 'camptocamp-systemd', '2.1.0'
+mod 'camptocamp-systemd', '2.7.0'
 
-mod 'puppetlabs-inifile', '2.4.0'
+mod 'puppetlabs-inifile', '3.1.0'
 
-mod 'puppetlabs-apt', '4.5.1'
+mod 'puppetlabs-apt', '7.2.0'
 
-mod 'puppetlabs-firewall', '1.14.0'
+mod 'puppetlabs-firewall', '2.1.0'
 
-mod 'puppet-staging', '3.2.0'
+#mod 'puppet-staging', '3.2.0'
 
-mod 'saz-timezone', '5.0.2'
+mod 'saz-timezone', '5.1.1'
 
-mod 'zabbixagent',
-  :git => 'https://github.com/SugarFactory/puppet-zabbixagent',
-#  #:branch => 'devel2'
-  :tag => 'v3.5.3'
+#mod 'zabbixagent',
+#  :git => 'https://github.com/SugarFactory/puppet-zabbixagent',
+##  #:branch => 'devel2'
+#  :tag => 'v3.5.3'
 
-mod 'puppet-openvpn', '7.4.0'
+#mod 'puppet-openvpn', '7.4.0'
 
-mod 'puppet-archive', '1.3.0'
+mod 'puppet-archive', '4.4.0'
 
-mod 'puppet-zabbix', '6.6.0'
+#mod 'puppet-zabbix', '6.6.0'
 
-#mod 'darin-zypprepo', '1.0.2'
+#mod 'stahnma-epel', '1.3.1'
 
-mod 'stahnma-epel', '1.3.1'
-
-mod 'stschulte-rpmkey', '1.0.3'
-
-#mod 'golja-gnupg', '1.2.3'
+#mod 'stschulte-rpmkey', '1.0.3'
 
 #mod 'beats',
 #  :git => 'https://github.com/SugarFactory/puppet-beats.git',
 #  #:branch => 'master'
 #  :tag => '0.10.2'
 
+# 'saz-timezone' (v5.1.1) requires 'stm-debconf' (>= 2.0.0 < 3.0.0)
 mod 'stm-debconf', '2.3.0'
 
-mod 'puppetlabs-ruby', '1.0.0'
+mod 'puppetlabs-ruby', '1.0.1'
 
 mod 'puppet-selinux', '3.0.0'
 
-mod 'puppetlabs-postgresql', '5.11.0'
+#mod 'puppetlabs-postgresql', '5.11.0'
 
 mod 'puppetlabs-pe_gem', '0.2.0'
 
-mod 'puppetlabs-mysql', '6.2.0'
+#mod 'puppetlabs-mysql', '6.2.0'
 
-mod 'puppetlabs-apache', '3.4.0'
+#mod 'puppetlabs-apache', '3.4.0'
 
-#mod 'example42-hosts', '2.0.19'
+mod 'puppetlabs-vcsrepo', '3.0.0'
 
-#mod 'example42-puppi', '2.2.1'
+mod 'puppet-jenkins', '2.0.0'
 
-mod 'puppetlabs-vcsrepo', '1.3.2'
-
-mod 'jenkins',
-  :git => 'https://github.com/SugarFactory/puppet-jenkins',
-  :tag => 'v1.7.2'
-
-#mod 'puppetlabs-ntp', '4.2.0'
-
-mod 'puppetlabs-java', '3.2.0'
+mod 'puppetlabs-java', '4.1.0'
 
 mod 'puppetlabs-transition', '0.1.1'
 
-#mod 'torrancew-cron', '0.2.1'
-
-#mod 'prometheus',
-#  :git => 'https://github.com/SugarFactory/puppet-prometheus',
-#  :tag => 'v5.2.0'
-mod 'puppet-prometheus', '6.4.0'
-
-#mod 'puppetlabs/dummy_service'
+mod 'puppet-prometheus', '7.1.0'
 
 mod 'puppet-nginx', '0.9.0'
 
 mod 'puppetlabs-translate', '1.2.0'
+
+mod 'puppet-zypprepo', '2.2.2'
