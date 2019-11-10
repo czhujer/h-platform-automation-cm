@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Install dependencies for RVM and Ruby...
-apt-get install curl gnupg2 dirmngr libaugeas-dev git -y
+apt-get install curl gnupg2 dirmngr libaugeas-dev git net-tools -y
 
 # import signing key
 if which gpg2 &>/dev/null; then
