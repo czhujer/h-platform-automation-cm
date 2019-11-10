@@ -44,7 +44,7 @@ mod 'stm-debconf', '2.3.0'
 
 mod 'puppetlabs-ruby', '1.0.0'
 
-mod 'puppet-selinux', '1.6.1'
+mod 'puppet-selinux', '3.0.0'
 
 mod 'puppetlabs-postgresql', '5.11.0'
 
