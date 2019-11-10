@@ -181,3 +181,8 @@ nginx::resource::server { "${facts['ipaddress']}_http":
   www_root    => "/var/www/html",
   location_cfg_append => { 'rewrite' => "^ https://${facts['ipaddress']}? redirect" },
 }
+
+# selinux
+selinux::boolean{ 'httpd_can_network_connect':
+  ensure => 'on',
+}
