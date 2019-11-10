@@ -120,7 +120,15 @@ package{ $back2own_dupl_deps:
       }
     }
 
-    if ! defined (File["/root/.mc"]){
+    if ! defined (File['/root/.config']){
+      file { '/root/.config':
+        ensure => directory,
+        mode    => '0755',
+        owner   => 'root',
+      }
+    }
+
+    if ! defined (File['/root/.config/mc']){
       file { '/root/.config/mc':
         ensure => directory,
         mode    => '0755',

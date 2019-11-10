@@ -2,19 +2,19 @@
 # jenkins server part
 #
 
-#class { 'jenkins':
-#    configure_firewall => false,
-#    install_java       => false,
-#    lts                => false,
-#    cli                => false,
-#    cli_tries  => 2,
-#    cli_ssh_keyfile => '/root/.ssh/id_rsa_jenkins_user',
-#   config_hash => {
-#    'HTTPS_PORT' => { 'value' => '8081' },
-#  },
-#  #cli_ssh_keyfile => '/root/.ssh/id_rsa_jenkins_user',
-#    #service_provider    => dummy,
-#}
+class { 'jenkins':
+   configure_firewall => false,
+   install_java       => false,
+   lts                => false,
+   cli                => false,
+   cli_tries  => 2,
+   cli_ssh_keyfile => '/root/.ssh/id_rsa_jenkins_user',
+  config_hash => {
+   'HTTPS_PORT' => { 'value' => '8081' },
+ },
+ #cli_ssh_keyfile => '/root/.ssh/id_rsa_jenkins_user',
+   #service_provider    => dummy,
+}
 
 #class {'jenkins::cli_helper':
 #    ssh_keyfile => '/root/.ssh/id_rsa_jenkins_user',
@@ -250,11 +250,19 @@ jenkins::plugin { 'copyartifact':
 jenkins::plugin { 'log-parser':
 }
 
+# file { '/var/lib/jenkins/userContent':
+#   ensure => directory,
+#   owner  => 'root',
+#   group  => 'root',
+#   mode   => '755',
+# }
+
 file { '/var/lib/jenkins/userContent/parsing_rules':
     ensure => directory,
     owner  => 'root',
     group  => 'root',
     mode   => '755',
+    require => Class['jenkins'],
 }
 
 $puppet_parse_c = 'error /^Error:/
