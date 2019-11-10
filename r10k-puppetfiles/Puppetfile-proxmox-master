@@ -1,94 +1,72 @@
 # config for r10k
 
-mod 'puppetlabs-concat', '5.1.0'
+# 'puppet-nginx' (v0.15.0) requires 'puppetlabs-concat' (>= 3.0.0 < 6.0.0)
+mod 'puppetlabs-concat', '5.3.0'
 
-mod 'puppetlabs-stdlib', '4.25.1'
+mod 'puppetlabs-stdlib', '5.2.0'
 
-mod 'camptocamp-systemd', '2.1.0'
+mod 'camptocamp-systemd', '2.7.0'
 
-mod 'puppetlabs-inifile', '2.4.0'
+mod 'puppetlabs-inifile', '3.1.0'
 
-mod 'puppetlabs-apt', '2.3.0'
+mod 'puppetlabs-apt', '7.2.0'
 
-mod 'puppetlabs-firewall', '1.8.2'
+mod 'puppetlabs-firewall', '2.1.0'
 
-mod 'puppetlabs-mysql', '3.10.0'
+#mod 'puppetlabs-mysql', '3.10.0'
 
 mod 'puppetlabs-pe_gem', '0.2.0'
 
-mod 'puppetlabs-postgresql', '5.12.1'
+#mod 'puppetlabs-postgresql', '5.12.1'
 
-mod 'puppetlabs-ruby', '0.6.0'
+mod 'puppetlabs-ruby', '1.0.1'
 
-mod 'puppet-staging', '2.1.0'
+#mod 'puppet-staging', '2.1.0'
 
-mod 'puppetlabs-apache', '3.4.0'
+#mod 'puppetlabs-apache', '3.4.0'
 
-mod 'saz-timezone', '3.4.0'
+mod 'saz-timezone', '5.1.1'
 
-mod 'puppetlabs-ntp', '4.2.0'
+#mod 'puppetlabs-ntp', '4.2.0'
 
+# 'saz-timezone' (v5.1.1) requires 'stm-debconf' (>= 2.0.0 < 3.0.0)
 mod 'stm-debconf', '2.3.0'
 
-mod 'zabbixagent',
- :git => 'https://github.com/H-Software/puppet-zabbixagent',
- :tag => 'v3.5.3'
+#mod 'zabbixagent',
+# :git => 'https://github.com/H-Software/puppet-zabbixagent',
+# :tag => 'v3.5.3'
 
-mod 'puppet-zabbix', '6.5.0'
+#mod 'puppet-zabbix', '6.5.0'
 
-#mod 'torrancew-cron', '0.2.1'
+mod 'puppetlabs-java', '4.1.0'
 
-#mod 'luxflux-openvpn', '4.0.1'
-
-#mod 'garethr-docker', '5.3.0'
-
-mod 'puppetlabs-java', '2.4.0'
-
-mod 'puppet-archive', '2.3.0'
+mod 'puppet-archive', '4.4.0'
 
 mod 'puppet-zypprepo', '2.2.2'
 
 #mod 'duritong-sysctl', '0.0.11'
 
-mod 'stahnma-epel', '1.2.2'
-
-#mod 'example42-perl', '2.0.25'
-
-#mod 'example42-monitor', '2.0.4'
-
-#mod 'example42-puppi', '2.2.1'
-
-#mod 'example42-hosts', '2.0.19'
-
-#mod 'maestrodev-wget', '1.7.3'
-
-#mod 'maestrodev-rvm', '1.13.1'
-
-#mod 'stschulte-rpmkey', '1.0.3'
-
-#mod 'golja-gnupg', '1.2.3'
+#mod 'stahnma-epel', '1.2.2'
 
 #mod 'beats',
 #  :git => 'https://github.com/SugarFactory/puppet-beats.git',
 #  :branch => 'devel'
 #  :tag => '0.10.2'
 
-#mod 'rtyler-jenkins', '1.7.0'
-
-mod 'jenkins',
-  :git => 'https://github.com/SugarFactory/puppet-jenkins',
-#  :branch => 'master'
-  :tag => 'v1.7.2'
+mod 'puppet-jenkins', '2.0.0'
 
 mod 'puppetlabs-transition', '0.1.1'
 
-#mod 'puppetlabs-vcsrepo', '1.3.2'
+#mod 'puppetlabs-vcsrepo', '3.0.0'
 
 mod 'puppet-nginx', '0.14.0'
 
-mod 'puppet-selinux', '1.6.1'
+mod 'puppet-selinux', '3.0.0'
 
 mod 'prometheus',
   :git => 'https://github.com/SugarFactory/puppet-prometheus',
   :tag => 'v5.4.0'
 #mod 'puppet-prometheus', '6.4.0'
+
+# 'puppetlabs-concat' (v5.3.0) requires 'puppetlabs-translate' (>= 1.0.0 < 2.0.0)
+mod 'puppetlabs-translate', '1.2.0'
