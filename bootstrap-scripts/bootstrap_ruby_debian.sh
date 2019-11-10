@@ -1,6 +1,6 @@
 #!/bin/bash
 
-apt-get upgrade -y
+DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade
 
 # Install dependencies for RVM and Ruby...
 apt-get install curl gnupg2 dirmngr libaugeas-dev git net-tools apt-transport-https -y
