@@ -1,7 +1,9 @@
 #!/bin/bash
 
+apt-get upgrade -y
+
 # Install dependencies for RVM and Ruby...
-apt-get install curl gnupg2 dirmngr libaugeas-dev git net-tools -y
+apt-get install curl gnupg2 dirmngr libaugeas-dev git net-tools apt-transport-https -y
 
 # import signing key
 if which gpg2 &>/dev/null; then
