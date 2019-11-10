@@ -2,18 +2,18 @@
 # nginx part
 #
 
-#apt::source { 'nginx':
-#  location => 'https://nginx.org/packages/ubuntu/',
-#  release  => 'xenial',
-#  repos    => 'nginx',
-#  include  => {
-#    'src' => true,
-#    'deb' => true,
-#  },
-#  key      => {
-#    'id'     => '573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62',
-#  },
-#}
+apt::source { 'nginx':
+ location => 'https://nginx.org/packages/debian/',
+ release  => 'stretch',
+ repos    => 'nginx',
+ include  => {
+   'src' => true,
+   'deb' => true,
+ },
+ key      => {
+   'id'     => '573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62',
+ },
+}
 
 class { 'nginx':
   package_source => 'nginx-mainline',
