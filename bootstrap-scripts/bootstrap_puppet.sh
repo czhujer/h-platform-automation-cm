@@ -2,16 +2,16 @@
 
   # Update rubygems, and pull down facter and then puppet...
   #gem update --system
-  #gem update --system --no-ri --no-rdoc --install-dir /usr/local/share/gems -q
-  gem update --system --no-ri --no-rdoc -q # --install-dir /usr/share/gems
+  #gem update --system --no-document --install-dir /usr/local/share/gems -q
+  gem update --system --no-document -q # --install-dir /usr/share/gems
 
-  gem install json_pure --no-ri --no-rdoc #--install-dir /usr/share/gems
-  gem install facter --no-ri --no-rdoc #--install-dir /usr/share/gems
-  #gem install libshadow --no-ri --no-rdoc #--install-dir /usr/share/gems
-  gem install puppet-module --no-ri --no-rdoc #--install-dir /usr/share/gems
-  gem install ruby-augeas --no-ri --no-rdoc #--install-dir /usr/share/gems
-  gem install syck --no-ri --no-rdoc #--install-dir /usr/share/gems
-  gem install puppet --no-ri --no-rdoc -v5.5.17 #--install-dir /usr/share/gems
+  gem install json_pure --no-document #--install-dir /usr/share/gems
+  gem install facter --no-document #--install-dir /usr/share/gems
+  #gem install libshadow --no-document #--install-dir /usr/share/gems
+  gem install puppet-module --no-document #--install-dir /usr/share/gems
+  gem install ruby-augeas --no-document #--install-dir /usr/share/gems
+  gem install syck --no-document #--install-dir /usr/share/gems
+  gem install puppet --no-document -v5.5.17 #--install-dir /usr/share/gems
 
   # install r10k
   gem install --no-rdoc --no-ri r10k -v3.3.3 #--install-dir /usr/share/gems

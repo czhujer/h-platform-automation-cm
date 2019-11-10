@@ -38,8 +38,17 @@ Vagrant.configure('2') do |config|
 
   # run ruby and puppet bootstrap
   config.vm.provision :shell, :inline => "echo 'starting bootstrap ruby and puppet...'"
-  #config.vm.provision :shell, path: 'bootstrap-scripts/bootstrap_ruby.sh', :privileged => true
-  #config.vm.provision :shell, path: 'bootstrap-scripts/bootstrap_puppet.sh', :privileged => true
+  servers['vagrant'].each do |name, server_config|
+    config.vm.define name do |host|
+      if name == "hpa-hq1"
+        config.vm.provision :shell, path: 'bootstrap-scripts/bootstrap_ruby.sh', :privileged => true
+        config.vm.provision :shell, path: 'bootstrap-scripts/bootstrap_puppet.sh', :privileged => true
+      elsif name == "hpa-pxm1"
+        config.vm.provision :shell, path: 'bootstrap-scripts/bootstrap_ruby_debian.sh', :privileged => true
+        config.vm.provision :shell, path: 'bootstrap-scripts/bootstrap_puppet.sh', :privileged => true
+      end
+    end
+  end
 
   #
   # run r10k and puppet apply
@@ -74,7 +83,6 @@ Vagrant.configure('2') do |config|
         host.vm.provision :shell, :inline => "source /opt/rh/rh-ruby25/enable; puppet apply --color=false --detailed-exitcodes /etc/puppet/manifests; retval=$?; if [[ $retval -eq 2 ]]; then exit 0; else exit $retval; fi;", :privileged => true
 
       end
-
     end
   end
 
