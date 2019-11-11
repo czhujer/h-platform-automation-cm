@@ -2,29 +2,34 @@
 # nginx part
 #
 
-apt::source { 'nginx':
- location => 'https://nginx.org/packages/debian/',
- release  => 'stretch',
- repos    => 'nginx',
- include  => {
-   'src' => true,
-   'deb' => true,
- },
- key      => {
-   'id'     => '573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62',
- },
-  before  => Class['nginx'],
-}
+# service { 'apache2':
+#   ensure => 'stopped',
+#   enable => false,
+#   before  => Class['nginx'],
+# }
+
+# apt::source { 'nginx':
+#   location => 'https://nginx.org/packages/debian/',
+#   release  => 'stretch',
+#   repos    => 'nginx',
+#   include  => {
+#     'src' => true,
+#     'deb' => true,
+#   },
+#   key      => {
+#     'id'     => '573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62',
+#   },
+#   notify_update => true,
+#   before  => Class['nginx'],
+# }
 
 class { 'nginx':
-  package_source => 'nginx-mainline',
-  #  service_ensure => 'undef',
-  #  service_restart => 'undef',
+  #package_source => 'nginx-mainline',
   confd_purge   => true,
   #vhost_purge   => true,
   server_purge  => true,
   #
-  manage_repo   => false, #because duplicate defs for package['apt-transport-https']
+  manage_repo   => true, #because duplicate defs for package['apt-transport-https']
   #
   log_format    => { 'timed_combined' => "\$remote_addr \$host \$remote_user [\$time_local]  '\n  '\"\$request\" \$status \$body_bytes_sent '\n  '\"\$http_referer\" \"\$http_user_agent\" \$request_time \$upstream_response_time \$pipe" },
   # compression

@@ -139,6 +139,6 @@ package{ $back2own_dupl_deps:
 #
 # requirements for zoner DNS API script
 #
-package{ ['php', 'php-xml', 'php-mbstring']:
+package{ ['php7.0-common', 'php7.0-xml', 'php7.0-mbstring', 'php7.0-cli']:
   ensure => installed,
 }
