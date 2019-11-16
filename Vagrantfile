@@ -75,6 +75,9 @@ Vagrant.configure('2') do |config|
         # fix PKI
         host.vm.provision "pki", type: "shell", path: 'scripts/pki-make-dummy-cert-debian.sh', args: ["localhost"], :privileged => true
 
+        # fix hostname for proxmox
+        host.vm.provision "fix-hosts", type: "shell", :inline => "sudo sed -i \"/\\b\hpa-pxm1\\b/d\" /etc/hosts; sudo echo \"$(hostname -I | cut -d ' ' -f 1 |tr -d '\n')\t\t#{name}\" >> /etc/hosts"
+
         host.vm.provision "copy-r10k-files", type: "shell", :inline => "cd /vagrant && cp r10k-puppetfiles/Puppetfile-proxmox-master /etc/puppet/Puppetfile", :privileged => true
 
         host.vm.provision "run-r10k", type: "shell", :inline => "source /etc/profile.d/rvm.sh; cd /etc/puppet && r10k puppetfile install --force --puppetfile /etc/puppet/Puppetfile", :privileged => true
