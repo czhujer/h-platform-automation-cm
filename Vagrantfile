@@ -73,18 +73,16 @@ Vagrant.configure('2') do |config|
         host.vm.provision :shell, :inline => "source /opt/rh/rh-ruby25/enable; puppet apply --color=false --detailed-exitcodes /etc/puppet/manifests; retval=$?; if [[ $retval -eq 2 ]]; then exit 0; else exit $retval; fi;", :privileged => true
       elsif name == "hpa-pxm1"
         # fix PKI
-        host.vm.provision :shell, :inline => "echo 'generate pki certs for webserver..'"
-        host.vm.provision :shell, path: 'scripts/pki-make-dummy-cert-debian.sh', args: ["localhost"], :privileged => true
+        host.vm.provision "pki", type: "shell", path: 'scripts/pki-make-dummy-cert-debian.sh', args: ["localhost"], :privileged => true
 
-        host.vm.provision :shell, :inline => "echo 'starting r10k install .. and puppet apply...'"
+        host.vm.provision "copy-r10k-files", type: "shell", :inline => "cd /vagrant && cp r10k-puppetfiles/Puppetfile-proxmox-master /etc/puppet/Puppetfile", :privileged => true
 
-        host.vm.provision :shell, :inline => "cd /vagrant && cp r10k-puppetfiles/Puppetfile-proxmox-master /etc/puppet/Puppetfile", :privileged => true
-        host.vm.provision :shell, :inline => "source /etc/profile.d/rvm.sh; cd /etc/puppet && r10k puppetfile install --force --puppetfile /etc/puppet/Puppetfile", :privileged => true
+        host.vm.provision "run-r10k", type: "shell", :inline => "source /etc/profile.d/rvm.sh; cd /etc/puppet && r10k puppetfile install --force --puppetfile /etc/puppet/Puppetfile", :privileged => true
 
         #host.vm.provision :shell, :inline => "source /opt/rh/rh-ruby25/enable; facter", :privileged => true
 
-        host.vm.provision :shell, :inline => "cd /vagrant && cp configs-servers/hpa-pxm1/*.pp /etc/puppet/manifests/", :privileged => true
-        host.vm.provision :shell, :inline => "source /etc/profile.d/rvm.sh; puppet apply --color=false --detailed-exitcodes /etc/puppet/manifests; retval=$?; if [[ $retval -eq 2 ]]; then exit 0; else exit $retval; fi;", :privileged => true
+        host.vm.provision "copy-puppet-files", type: "shell", :inline => "cd /vagrant && cp configs-servers/hpa-pxm1/*.pp /etc/puppet/manifests/", :privileged => true
+        host.vm.provision "run-puppet", type: "shell", :inline => "source /etc/profile.d/rvm.sh; puppet apply --color=false --detailed-exitcodes /etc/puppet/manifests; retval=$?; if [[ $retval -eq 2 ]]; then exit 0; else exit $retval; fi;", :privileged => true
 
       end
     end
