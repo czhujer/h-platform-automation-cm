@@ -13,11 +13,10 @@ class { 'prometheus::node_exporter':
   collectors_disable => ['bcache','bonding', 'conntrack', 'mdadm' ],
 }
 
-
-class { '::prometheus::apache_exporter':
-  url           => 'https://localhost/server-status?auto',
-  extra_options => '-insecure',
-}
+# class { '::prometheus::apache_exporter':
+#   url           => 'https://localhost/server-status?auto',
+#   extra_options => '-insecure',
+# }
 
 user { 'mysqld-exporter':
   ensure     => present,
@@ -64,6 +63,6 @@ mysql_grant{'mysqld-exporter@localhost/*.*':
   privileges => ['PROCESS', 'REPLICATION CLIENT'],
 }
 
-class { '::prometheus::phpfpm_exporter':
-  url => 'tcp://127.0.0.1:9001/fpm-status',
-}
+# class { '::prometheus::phpfpm_exporter':
+#   url => 'tcp://127.0.0.1:9001/fpm-status',
+# }
