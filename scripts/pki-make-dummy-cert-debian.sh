@@ -1,6 +1,8 @@
 #!/bin/sh
 umask 077
 
+echo 'generate pki certs for webserver..'
+
 answers() {
 	echo --
 	echo SomeState
