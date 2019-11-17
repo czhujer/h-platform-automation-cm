@@ -32,6 +32,11 @@ Vagrant.configure('2') do |config|
       path: '../bootstrap-scripts/bootstrap_puppet.sh',
       :privileged => true
 
+  config.vm.provision "bootstrap-perl",
+      type: "shell",
+      path: '../bootstrap-scripts/bootstrap_perl.sh',
+      :privileged => true
+
   # fix PKI
   #host.vm.provision :shell, :inline => "echo 'generate pki certs for webserver..'"
   #host.vm.provision :shell, path: 'scripts/pki-make-dummy-cert.sh', args: ["localhost"], :privileged => true
@@ -40,6 +45,12 @@ Vagrant.configure('2') do |config|
   config.vm.provision "disable-selinux",
       type: "shell",
       :inline => 'sed -i s/^SELINUX=.*$/SELINUX=permissive/ /etc/selinux/config; setenforce 0',
+      :privileged => true
+
+  # run hiera gen
+  config.vm.provision "run-hiera-gen",
+      type: "shell",
+      :inline => 'source /opt/rh/rh-ruby25/enable; perl /vagrant/bootstrap-scripts/hiera-items-handler.pl',
       :privileged => true
 
   #
