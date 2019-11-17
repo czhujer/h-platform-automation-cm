@@ -1,0 +1,56 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# based on: https://github.com/czhujer/vagrant-kubernetes-sandbox/blob/master/Vagrantfile
+#
+# cheat sheet https://gist.github.com/czhujer/428adb509eeabba7c8f6a0f2dea916c1
+#
+
+Vagrant.require_version ">= 2.0.0"
+
+Vagrant.configure('2') do |config|
+  config.vm.box = 'centos/7'
+  config.vm.hostname = "hpa-owncloudstack-c7"
+  config.vm.define "hpa-owncloudstack-c7"
+
+  config.vm.provider :libvirt do |v|
+    v.memory = 1024
+    v.cpus = 2
+  end
+
+  config.vm.synced_folder '../', '/vagrant', type: 'sshfs'
+  #config.vm.hostname = name
+
+  # run ruby and puppet bootstrap
+  config.vm.provision "bootstrap-ruby",
+      type: "shell",
+      path: '../bootstrap-scripts/bootstrap_ruby.sh',
+      :privileged => true
+
+  config.vm.provision "bootstrap-puppet",
+      type: "shell",
+      path: '../bootstrap-scripts/bootstrap_puppet.sh',
+      :privileged => true
+
+  # fix PKI
+  #host.vm.provision :shell, :inline => "echo 'generate pki certs for webserver..'"
+  #host.vm.provision :shell, path: 'scripts/pki-make-dummy-cert.sh', args: ["localhost"], :privileged => true
+
+  #disable selinux
+  config.vm.provision "disable-selinux",
+      type: "shell",
+      :inline => 'sed -i s/^SELINUX=.*$/SELINUX=permissive/ /etc/selinux/config; setenforce 0',
+      :privileged => true
+
+  #
+  # run r10k and puppet apply
+  #
+  config.vm.provision "copy-r10k-files", type: "shell", :inline => "cd /vagrant && cp r10k-puppetfiles/Puppetfile-owncloudstack /etc/puppet/Puppetfile", :privileged => true
+  config.vm.provision "run-r10k", type: "shell", :inline => "source /opt/rh/rh-ruby25/enable; cd /etc/puppet && r10k puppetfile install --force --puppetfile /etc/puppet/Puppetfile", :privileged => true
+
+  #config.vm.provision :shell, :inline => "source /opt/rh/rh-ruby25/enable; facter", :privileged => true
+
+  config.vm.provision "copy-puppet-files", type: "shell", :inline => "cd /vagrant && cp muster-owncloudstack/*.pp /etc/puppet/manifests/", :privileged => true
+  config.vm.provision "run-puppet", type: "shell", :inline => "source /opt/rh/rh-ruby25/enable; puppet apply --color=false --detailed-exitcodes /etc/puppet/manifests; retval=$?; if [[ $retval -eq 2 ]]; then exit 0; else exit $retval; fi;", :privileged => true
+
+end
