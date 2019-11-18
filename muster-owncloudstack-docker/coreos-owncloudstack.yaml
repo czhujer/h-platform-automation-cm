@@ -1,0 +1,45 @@
+#cloud-config
+---
+coreos:
+  update:
+    reboot-strategy: off
+  units:
+#    - name: etcd-member.service
+#      command: start
+#      drop-ins:
+#        - name: 10-etcd.conf
+#          content: |
+#            [Service]
+#            Environment="ETCD_OPTS=--name \"etcdserver\" --listen-client-urls=http://0.0.0.0:2379 --advertise-client-urls=http://$private_ipv4:2379 --listen-client-urls=http://0.0.0.0:2379,http://0.0.0.0:4001 --listen-peer-urls=http://0.0.0.0:2380"
+#            Environment="ETCD_IMAGE_TAG=v3.2.9"
+
+    - name: docker-compose-owncloudstack.service
+      runtime: true
+      command: start
+      content: |
+        [Unit]
+        Description=owncloudstack service with docker compose
+        Requires=docker.service
+        After=docker.service
+
+        [Service]
+        Restart=always
+
+        WorkingDirectory=/opt/docker/compose/owncloudstack
+
+        # Remove old containers, images and volumes
+        ExecStartPre=/opt/bin/docker-compose down -v
+        ExecStartPre=/opt/bin/docker-compose rm -fv
+        ExecStartPre=-/bin/bash -c 'docker volume ls -qf "name=%i_" | xargs docker volume rm'
+        ExecStartPre=-/bin/bash -c 'docker network ls -qf "name=%i_" | xargs docker network rm'
+        ExecStartPre=-/bin/bash -c 'docker ps -aqf "name=%i_*" | xargs docker rm'
+
+        # Compose up
+        ExecStart=/opt/bin/docker-compose up
+
+        # Compose down, remove containers and volumes
+        ExecStop=/opt/bin/docker-compose down -v
+
+        [Install]
+        WantedBy=multi-user.target
+
