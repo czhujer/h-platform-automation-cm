@@ -55,12 +55,11 @@ Vagrant.configure("2") do |config|
       host.vm.provision :file, :source => "coreos-owncloudstack.yaml", :destination => "/tmp/vagrantfile-user-data"
       host.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
 
-$script_status = <<SCRIPT3
-echo "Showing status of owncloudstack compose..."
-cd /opt/docker/compose/owncloudstack && docker-compose ps
-SCRIPT3
-
-      host.vm.provision "status", type: "shell", inline: $script_status, privileged: true, run: "never"
+      host.vm.provision "status",
+        type: "shell",
+        inline: "cd /opt/docker/compose/owncloudstack && docker-compose ps",
+        privileged: true,
+        run: "never"
 
     end
   end
