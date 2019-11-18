@@ -1,18 +1,155 @@
 #cloud-config
 ---
+write_files:
+  - path: "/opt/bin/touch"
+    permissions: '0644'
+    owner: core:core
+  - path: /opt/docker/compose/owncloudstack/.env
+    permissions: '0644'
+    owner: core:core
+    content: |
+      MYSQL_ROOT_PASSWORD=your_root_password
+      MYSQL_USER=your_wordpress_database_user
+      MYSQL_PASSWORD=your_wordpress_database_password
+  - path: /opt/docker/compose/owncloudstack/docker-compose.yaml
+    permissions: 0644
+    content: |
+      version: '3'
+
+      services:
+        db:
+          image: mysql:8.0
+          container_name: db
+          restart: unless-stopped
+          env_file: .env
+          command:
+              --max_heap_table_size=16M
+              --innodb_buffer_pool_size=16M
+              --default-authentication-plugin=mysql_native_password
+          environment:
+            - MYSQL_DATABASE=wordpress
+          volumes:
+            - dbdata:/var/lib/mysql
+          networks:
+            - app-network
+
+        wordpress:
+          depends_on:
+            - db
+          image: wordpress:php7.3-fpm-alpine
+          container_name: wordpress
+          restart: unless-stopped
+          env_file: .env
+          environment:
+            - WORDPRESS_DB_HOST=db:3306
+            - WORDPRESS_DB_USER=$MYSQL_USER
+            - WORDPRESS_DB_PASSWORD=$MYSQL_PASSWORD
+            - WORDPRESS_DB_NAME=wordpress
+          volumes:
+            - wordpress:/var/www/html
+          networks:
+            - app-network
+
+        webserver:
+          depends_on:
+            - wordpress
+          image: nginx:1.17-alpine
+          container_name: webserver
+          restart: unless-stopped
+          ports:
+            - "8080:80"
+          volumes:
+            - wordpress:/var/www/html
+            - ./nginx-conf:/etc/nginx/conf.d
+            - certbot-etc:/etc/letsencrypt
+          networks:
+            - app-network
+
+      volumes:
+        certbot-etc:
+        wordpress:
+        dbdata:
+
+      networks:
+        app-network:
+          driver: bridge
+  - path: /opt/docker/compose/owncloudstack/nginx-conf/nginx.conf
+    permissions: 0644
+    content: |
+      server {
+              listen 80;
+              listen [::]:80;
+
+              #server_name example.com www.example.com;
+
+              #location ~ /.well-known/acme-challenge {
+              #        allow all;
+              #        root /var/www/html;
+              #}
+
+              #location / {
+              #        rewrite ^ https://$host$request_uri? permanent;
+              #}
+      #}
+
+      #server {
+      #        listen 443 ssl http2;
+      #        listen [::]:443 ssl http2;
+      #        server_name example.com www.example.com;
+
+              index index.php index.html index.htm;
+
+              root /var/www/html;
+
+              server_tokens off;
+
+              #ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+              #ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+
+              #include /etc/nginx/conf.d/options-ssl-nginx.conf;
+
+              add_header X-Frame-Options "SAMEORIGIN" always;
+              add_header X-XSS-Protection "1; mode=block" always;
+              add_header X-Content-Type-Options "nosniff" always;
+              add_header Referrer-Policy "no-referrer-when-downgrade" always;
+              add_header Content-Security-Policy "default-src * data: 'unsafe-eval' 'unsafe-inline'" always;
+              # add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+              # enable strict transport security only if you understand the implications
+
+              location / {
+                      try_files $uri $uri/ /index.php$is_args$args;
+              }
+
+              location ~ \.php$ {
+                      try_files $uri =404;
+                      fastcgi_split_path_info ^(.+\.php)(/.+)$;
+                      fastcgi_pass wordpress:9000;
+                      fastcgi_index index.php;
+                      include fastcgi_params;
+                      fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                      fastcgi_param PATH_INFO $fastcgi_path_info;
+              }
+
+              location ~ /\.ht {
+                      deny all;
+              }
+
+              location = /favicon.ico {
+                      log_not_found off; access_log off;
+              }
+              location = /robots.txt {
+                      log_not_found off; access_log off; allow all;
+              }
+              location ~* \.(css|gif|ico|jpeg|jpg|js|png)$ {
+                      expires max;
+                      log_not_found off;
+              }
+      }
+
 coreos:
   update:
     reboot-strategy: off
   units:
-#    - name: etcd-member.service
-#      command: start
-#      drop-ins:
-#        - name: 10-etcd.conf
-#          content: |
-#            [Service]
-#            Environment="ETCD_OPTS=--name \"etcdserver\" --listen-client-urls=http://0.0.0.0:2379 --advertise-client-urls=http://$private_ipv4:2379 --listen-client-urls=http://0.0.0.0:2379,http://0.0.0.0:4001 --listen-peer-urls=http://0.0.0.0:2380"
-#            Environment="ETCD_IMAGE_TAG=v3.2.9"
-
     - name: docker-compose-owncloudstack.service
       runtime: true
       command: start
@@ -26,6 +163,10 @@ coreos:
         Restart=always
 
         WorkingDirectory=/opt/docker/compose/owncloudstack
+
+        # download docker-compose
+        ExecStartPre=-/bin/bash -c 'if [ ! -s /opt/bin/docker-compose ]; then sudo curl -s -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-Linux-x86_64" > /opt/bin/docker-compose; fi;'
+        ExecStartPre=-/bin/bash -c 'if [ ! -x /opt/bin/docker-compose ]; then chmod 755 /opt/bin/docker-compose; fi;'
 
         # Remove old containers, images and volumes
         ExecStartPre=/opt/bin/docker-compose down -v
@@ -42,4 +183,3 @@ coreos:
 
         [Install]
         WantedBy=multi-user.target
-

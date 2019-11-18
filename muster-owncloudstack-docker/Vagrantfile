@@ -10,11 +10,11 @@ num_instances=1
 # Change basename of the VM
 instance_name_prefix="hpa-coreos"
 
-require 'json'
+#require 'json'
 
 Vagrant.require_version ">= 2.0.0"
 
-ignition_file = File.join(File.dirname(__FILE__), 'config-owncloudstack.ign')
+#ignition_file = File.join(File.dirname(__FILE__), 'config-owncloudstack.ign')
 
 Vagrant.configure("2") do |config|
   # always use Vagrants insecure key
@@ -25,6 +25,7 @@ Vagrant.configure("2") do |config|
   #config.vm.box_version = ">= 1122.0.0"
   #config.vm.box_url = "http://%s.release.core-os.net/amd64-usr/current/coreos_production_vagrant.json" % update_channel
 
+  # mutated box (vagrant hasn't boxes for libvirt)
   config.vm.box = "coreos_stable_prod"
 
   config.ssh.username = "core"
@@ -33,8 +34,9 @@ Vagrant.configure("2") do |config|
     v.memory = 1024
     v.cpus = 2
 
-    v.qemuargs :value => '-fw_cfg'
-    v.qemuargs :value => "name=opt/com.coreos/config,file=#{ignition_file}"
+    # this doesn't work
+    #v.qemuargs :value => '-fw_cfg'
+    #v.qemuargs :value => "name=opt/com.coreos/config,file=#{ignition_file}"
   end
 
   # plugin conflict
@@ -49,44 +51,7 @@ Vagrant.configure("2") do |config|
     config.vm.define vm_name do |host|
       host.vm.hostname = vm_name
 
-      # add docker-compose binary
-      host.vm.provision :shell,
-        :inline => 'mkdir -p /opt/bin; curl -s -L https://github.com/docker/compose/releases/download/1.24.1/docker-compose-Linux-x86_64 > /opt/bin/docker-compose; echo $?',
-        :privileged => true
-
-      host.vm.provision :shell,
-        :inline => 'chmod 755 /opt/bin/docker-compose; echo $?',
-        :privileged => true
-
-      # add docker-compose files
-      host.vm.provision :file,
-        :source => "docker-compose/owncloudstack.yaml",
-        :destination => "/tmp/vagrantfile-dockercompose"
-      host.vm.provision :shell,
-        :inline => "mkdir -p /opt/docker/compose/owncloudstack; mv /tmp/vagrantfile-dockercompose /opt/docker/compose/owncloudstack/docker-compose.yaml",
-        :privileged => true
-
-      host.vm.provision :file,
-        :source => "nginx-conf/nginx.conf",
-        :destination => "/tmp/vagrantfile-nginx"
-
-      host.vm.provision :shell,
-        :inline => "mkdir -p /opt/docker/compose/owncloudstack/nginx-conf; mv /tmp/vagrantfile-nginx /opt/docker/compose/owncloudstack/nginx-conf/nginx.conf",
-        :privileged => true
-
-$script_compose_env = <<SCRIPT2
-(
-cat <<-EOF2
-MYSQL_ROOT_PASSWORD=your_root_password
-MYSQL_USER=your_wordpress_database_user
-MYSQL_PASSWORD=your_wordpress_database_password
-EOF2
-) | tee /opt/docker/compose/owncloudstack/.env
-SCRIPT2
-
-      host.vm.provision "create-env", type: "shell", inline: $script_compose_env, privileged: true
-
-      # add configuration
+      # coreos-init (cloud-init)
       host.vm.provision :file, :source => "coreos-owncloudstack.yaml", :destination => "/tmp/vagrantfile-user-data"
       host.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
 
@@ -95,7 +60,7 @@ echo "Showing status of owncloudstack compose..."
 cd /opt/docker/compose/owncloudstack && docker-compose ps
 SCRIPT3
 
-      host.vm.provision "status", type: "shell", inline: $script_status, privileged: true
+      host.vm.provision "status", type: "shell", inline: $script_status, privileged: true, run: "never"
 
     end
   end
