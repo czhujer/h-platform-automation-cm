@@ -8,67 +8,107 @@ write_files:
     permissions: '0644'
     owner: core:core
     content: |
-      MYSQL_ROOT_PASSWORD=your_root_password
-      MYSQL_USER=your_wordpress_database_user
-      MYSQL_PASSWORD=your_wordpress_database_password
+      OWNCLOUD_DOMAIN=localhost:8080
+      ADMIN_USERNAME=admin
+      ADMIN_PASSWORD=admin
   - path: /opt/docker/compose/owncloudstack/docker-compose.yaml
     permissions: 0644
     content: |
       version: '3'
 
+      volumes:
+        web_data:
+          driver: local
+        db_data:
+          driver: local
+        backup:
+          driver: local
+        redis:
+          driver: local
+
       services:
         db:
-          image: mysql:8.0
-          container_name: db
+          image: webhippie/mariadb:latest
           restart: unless-stopped
           env_file: .env
-          command:
-              --max_heap_table_size=16M
-              --innodb_buffer_pool_size=16M
-              --default-authentication-plugin=mysql_native_password
           environment:
-            - MYSQL_DATABASE=wordpress
+            - MARIADB_ROOT_PASSWORD=root_password
+            - MARIADB_USERNAME=owncloud
+            - MARIADB_PASSWORD=owncloud
+            - MARIADB_DATABASE=owncloud
+            - MARIADB_MAX_ALLOWED_PACKET=128M
+            - MARIADB_INNODB_LOG_FILE_SIZE=64M
+          healthcheck:
+            test: ["CMD", "/usr/bin/healthcheck"]
+            interval: 30s
+            timeout: 10s
+            retries: 5
           volumes:
-            - dbdata:/var/lib/mysql
+            - db_data:/var/lib/mysql
           networks:
             - app-network
 
-        wordpress:
+        redis:
+          image: webhippie/redis:latest
+          restart: always
+          environment:
+            - REDIS_DATABASES=1
+          healthcheck:
+            test: ["CMD", "/usr/bin/healthcheck"]
+            interval: 30s
+            timeout: 10s
+            retries: 5
+          volumes:
+            - redis:/var/lib/redis
+          networks:
+            - app-network
+
+        owncloud:
           depends_on:
             - db
-          image: wordpress:php7.3-fpm-alpine
-          container_name: wordpress
+            - redis
+          image: owncloud/server:10.3
           restart: unless-stopped
           env_file: .env
           environment:
-            - WORDPRESS_DB_HOST=db:3306
-            - WORDPRESS_DB_USER=$MYSQL_USER
-            - WORDPRESS_DB_PASSWORD=$MYSQL_PASSWORD
-            - WORDPRESS_DB_NAME=wordpress
+            - OWNCLOUD_DOMAIN=${OWNCLOUD_DOMAIN}
+            - OWNCLOUD_DB_TYPE=mysql
+            - OWNCLOUD_DB_NAME=owncloud
+            - OWNCLOUD_DB_USERNAME=owncloud
+            - OWNCLOUD_DB_PASSWORD=owncloud
+            - OWNCLOUD_DB_HOST=db
+            - OWNCLOUD_ADMIN_USERNAME=${ADMIN_USERNAME}
+            - OWNCLOUD_ADMIN_PASSWORD=${ADMIN_PASSWORD}
+            - OWNCLOUD_MYSQL_UTF8MB4=true
+            - OWNCLOUD_REDIS_ENABLED=true
+            - OWNCLOUD_REDIS_HOST=redis
+          healthcheck:
+            test: ["CMD", "/usr/bin/healthcheck"]
+            interval: 30s
+            timeout: 10s
+            retries: 5
           volumes:
-            - wordpress:/var/www/html
+            - web_data:/mnt/data
           networks:
             - app-network
 
         webserver:
           depends_on:
-            - wordpress
+            - owncloud
           image: nginx:1.17-alpine
-          container_name: webserver
           restart: unless-stopped
+          healthcheck:
+            test: ["CMD", "wget", "-q", "http://127.0.0.1/nginx_status", "-O", "-"]
+            interval: 30s
+            timeout: 10s
+            retries: 5
           ports:
             - "8080:80"
           volumes:
-            - wordpress:/var/www/html
+            #- web_data:/var/www/html
             - ./nginx-conf:/etc/nginx/conf.d
-            - certbot-etc:/etc/letsencrypt
           networks:
             - app-network
-
-      volumes:
-        certbot-etc:
-        wordpress:
-        dbdata:
 
       networks:
         app-network:
@@ -76,6 +116,10 @@ write_files:
   - path: /opt/docker/compose/owncloudstack/nginx-conf/nginx.conf
     permissions: 0644
     content: |
+      upstream owncloud_server {
+              server owncloud:8080 max_fails=3 fail_timeout=30s;
+      }
+
       server {
               listen 80;
               listen [::]:80;
@@ -116,18 +160,17 @@ write_files:
               # add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
               # enable strict transport security only if you understand the implications
 
-              location / {
-                      try_files $uri $uri/ /index.php$is_args$args;
+              location /nginx_status {
+                      stub_status on;
+                      access_log   off;
+                      allow 127.0.0.1;
+                      deny all;
               }
-
-              location ~ \.php$ {
-                      try_files $uri =404;
-                      fastcgi_split_path_info ^(.+\.php)(/.+)$;
-                      fastcgi_pass wordpress:9000;
-                      fastcgi_index index.php;
-                      include fastcgi_params;
-                      fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-                      fastcgi_param PATH_INFO $fastcgi_path_info;
+              location / {
+                      #proxy_set_header Host $host;
+                      #proxy_set_header X-Real-IP $remote_addr;
+                      #proxy_set_header Accept-Encoding "";
+                      proxy_pass http://owncloud_server;
               }
 
               location ~ /\.ht {
