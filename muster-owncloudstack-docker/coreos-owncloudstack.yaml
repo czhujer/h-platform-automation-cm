@@ -113,6 +113,43 @@ write_files:
       networks:
         app-network:
           driver: bridge
+  - path: /opt/docker/compose/promexporters/docker-compose.yaml
+    permissions: 0644
+    content: |
+      version: '3'
+
+      services:
+
+        nodeexporter:
+          image: prom/node-exporter:v0.18.1
+          container_name: nodeexporter
+          volumes:
+            - /proc:/host/proc:ro
+            - /sys:/host/sys:ro
+            - /:/rootfs:ro
+          command:
+            - '--path.procfs=/host/proc'
+            - '--path.rootfs=/rootfs'
+            - '--path.sysfs=/host/sys'
+            - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+          restart: unless-stopped
+          network_mode: host
+          labels:
+            org.label-schema.group: "monitoring"
+
+        cadvisor:
+          image: google/cadvisor:v0.33.0
+          container_name: cadvisor
+          volumes:
+            - /:/rootfs:ro
+            - /var/run:/var/run:rw
+            - /sys:/sys:ro
+            - /var/lib/docker/:/var/lib/docker:ro
+            - /cgroup:/cgroup:ro
+          restart: unless-stopped
+          network_mode: host
+          labels:
+            org.label-schema.group: "monitoring"
   - path: /opt/docker/compose/owncloudstack/nginx-conf/nginx.conf
     permissions: 0644
     content: |
@@ -206,6 +243,39 @@ coreos:
         Restart=always
 
         WorkingDirectory=/opt/docker/compose/owncloudstack
+
+        # download docker-compose
+        ExecStartPre=-/bin/bash -c 'if [ ! -s /opt/bin/docker-compose ]; then sudo curl -s -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-Linux-x86_64" > /opt/bin/docker-compose; fi;'
+        ExecStartPre=-/bin/bash -c 'if [ ! -x /opt/bin/docker-compose ]; then chmod 755 /opt/bin/docker-compose; fi;'
+
+        # Remove old containers, images and volumes
+        ExecStartPre=/opt/bin/docker-compose down -v
+        ExecStartPre=/opt/bin/docker-compose rm -fv
+        ExecStartPre=-/bin/bash -c 'docker volume ls -qf "name=%i_" | xargs docker volume rm'
+        ExecStartPre=-/bin/bash -c 'docker network ls -qf "name=%i_" | xargs docker network rm'
+        ExecStartPre=-/bin/bash -c 'docker ps -aqf "name=%i_*" | xargs docker rm'
+
+        # Compose up
+        ExecStart=/opt/bin/docker-compose up
+
+        # Compose down, remove containers and volumes
+        ExecStop=/opt/bin/docker-compose down -v
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: docker-compose-promexporters.service
+      runtime: true
+      command: start
+      content: |
+        [Unit]
+        Description=docker-compose service for prometheus exporters
+        Requires=docker.service
+        After=docker.service
+
+        [Service]
+        Restart=always
+
+        WorkingDirectory=/opt/docker/compose/promexporters
 
         # download docker-compose
         ExecStartPre=-/bin/bash -c 'if [ ! -s /opt/bin/docker-compose ]; then sudo curl -s -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-Linux-x86_64" > /opt/bin/docker-compose; fi;'
