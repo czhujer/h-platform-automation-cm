@@ -8,7 +8,7 @@ write_files:
     permissions: '0644'
     owner: core:core
     content: |
-      OWNCLOUD_DOMAIN=localhost:8080
+      OWNCLOUD_DOMAIN=localhost
       ADMIN_USERNAME=admin
       ADMIN_PASSWORD=admin
   - path: /opt/docker/compose/owncloudstack/docker-compose.yaml
@@ -103,7 +103,7 @@ write_files:
             timeout: 10s
             retries: 5
           ports:
-            - "8080:80"
+            - "80:80"
           volumes:
             #- web_data:/var/www/html
             - ./nginx-conf:/etc/nginx/conf.d
