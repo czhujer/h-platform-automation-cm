@@ -47,7 +47,18 @@ write_files:
             - db_data:/var/lib/mysql
           networks:
             - app-network
-
+        db-exporter:
+          depends_on:
+            - db
+          image: prom/mysqld-exporter:latest
+          restart: always
+          env_file: .env
+          networks:
+            - app-network
+          ports:
+            - "9104:9104"
+          environment:
+            - DATA_SOURCE_NAME="user:password@(db:3306)/"
         redis:
           image: webhippie/redis:latest
           restart: always
@@ -62,6 +73,15 @@ write_files:
             - redis:/var/lib/redis
           networks:
             - app-network
+        redis-exporter:
+          depends_on:
+            - redis
+          image: oliver006/redis_exporter:alpine
+          restart: always
+          networks:
+            - app-network
+          ports:
+            - "9121:9121"
 
         owncloud:
           depends_on:
@@ -109,6 +129,18 @@ write_files:
             - ./nginx-conf:/etc/nginx/conf.d
           networks:
             - app-network
+        webserver-exporter:
+          depends_on:
+            - webserver
+          image: nginx/nginx-prometheus-exporter:0.4.2
+          restart: always
+          networks:
+            - app-network
+          ports:
+            - "9113:9113"
+          command:
+            - "-nginx.scrape-uri"
+            - "http://webserver:8080/stub_status"
 
       networks:
         app-network:
