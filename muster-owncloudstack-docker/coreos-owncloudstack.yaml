@@ -229,12 +229,6 @@ write_files:
               # add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
               # enable strict transport security only if you understand the implications
 
-              location /nginx_status {
-                      stub_status on;
-                      access_log   off;
-                      allow 127.0.0.1;
-                      deny all;
-              }
               location / {
                       #proxy_set_header Host $host;
                       #proxy_set_header X-Real-IP $remote_addr;
@@ -256,6 +250,17 @@ write_files:
               #        expires max;
               #        log_not_found off;
               #}
+      }
+      server {
+          listen 8080;
+          listen [::]:8080;
+          location /stub_status {
+              stub_status;
+
+              access_log off;
+              allow 127.0.0.1;
+              deny all;
+          }
       }
 
 coreos:
