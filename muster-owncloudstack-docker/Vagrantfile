@@ -52,8 +52,27 @@ Vagrant.configure("2") do |config|
       host.vm.hostname = vm_name
 
       # coreos-init (cloud-init)
-      host.vm.provision :file, :source => "coreos-owncloudstack.yaml", :destination => "/tmp/vagrantfile-user-data"
-      host.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
+      host.vm.provision"copy-init-file",
+            type: "file",
+            :source => "coreos-owncloudstack.yaml",
+            :destination => "/tmp/vagrantfile-user-data"
+
+      host.vm.provision "move-init-file",
+            type: "shell",
+            :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/",
+            :privileged => true
+
+      host.vm.provision "run-init-file",
+            type: "shell",
+            :inline => "/usr/bin/coreos-cloudinit --from-file=/var/lib/coreos-vagrant/vagrantfile-user-data",
+            :privileged => true,
+            run: "never"
+
+      host.vm.provision "recompose-owncloudstack",
+            type: "shell",
+            :inline => "cd /opt/docker/compose/owncloudstack && /opt/bin/docker-compose up -d",
+            :privileged => true,
+            run: "never"
 
       host.vm.provision "status",
         type: "shell",
