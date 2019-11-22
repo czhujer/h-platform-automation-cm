@@ -82,6 +82,8 @@ write_files:
             - app-network
           ports:
             - "9121:9121"
+          environment:
+            - REDIS_ADDR=redis:6379
 
         owncloud:
           depends_on:
