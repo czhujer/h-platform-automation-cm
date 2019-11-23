@@ -9,8 +9,12 @@ write_files:
     owner: core:core
     content: |
       OWNCLOUD_DOMAIN=localhost
-      ADMIN_USERNAME=admin
-      ADMIN_PASSWORD=admin
+      OWNCLOUD_ADMIN_USERNAME=admin
+      OWNCLOUD_ADMIN_PASSWORD=adminpass
+      DB_USERNAME_OWNCLOUD=owncloud
+      DB_PASSWORD_OWNCLOUD=ownpass
+      DATABASE_OWNCLOUD=owncloud
+      DB_ROOT_PASSWORD=root_password
   - path: /opt/docker/compose/owncloudstack/docker-compose.yaml
     permissions: 0644
     content: |
@@ -28,21 +32,17 @@ write_files:
 
       services:
         db:
-          image: webhippie/mariadb:latest
-          restart: unless-stopped
+          image: mariadb/server:10.4
+          restart: always
           env_file: .env
           environment:
-            - MARIADB_ROOT_PASSWORD=root_password
-            - MARIADB_USERNAME=owncloud
-            - MARIADB_PASSWORD=owncloud
-            - MARIADB_DATABASE=owncloud
-            - MARIADB_MAX_ALLOWED_PACKET=128M
-            - MARIADB_INNODB_LOG_FILE_SIZE=64M
-          healthcheck:
-            test: ["CMD", "/usr/bin/healthcheck"]
-            interval: 30s
-            timeout: 10s
-            retries: 5
+            - MARIADB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+            - MARIADB_USER=${DB_USERNAME_OWNCLOUD}
+            - MARIADB_PASSWORD=${DB_PASSWORD_OWNCLOUD}
+            - MARIADB_DATABASE=${DATABASE_OWNCLOUD}
+          command:
+            --max_heap_table_size=16M
+            --innodb_buffer_pool_size=16M
           volumes:
             - db_data:/var/lib/mysql
           networks:
@@ -95,12 +95,12 @@ write_files:
           environment:
             - OWNCLOUD_DOMAIN=${OWNCLOUD_DOMAIN}
             - OWNCLOUD_DB_TYPE=mysql
-            - OWNCLOUD_DB_NAME=owncloud
-            - OWNCLOUD_DB_USERNAME=owncloud
-            - OWNCLOUD_DB_PASSWORD=owncloud
+            - OWNCLOUD_DB_NAME=${DATABASE_OWNCLOUD}
+            - OWNCLOUD_DB_USERNAME=${DB_USERNAME_OWNCLOUD}
+            - OWNCLOUD_DB_PASSWORD=${DB_PASSWORD_OWNCLOUD}
             - OWNCLOUD_DB_HOST=db
-            - OWNCLOUD_ADMIN_USERNAME=${ADMIN_USERNAME}
-            - OWNCLOUD_ADMIN_PASSWORD=${ADMIN_PASSWORD}
+            - OWNCLOUD_ADMIN_USERNAME=${OWNCLOUD_ADMIN_USERNAME}
+            - OWNCLOUD_ADMIN_PASSWORD=${OWNCLOUD_ADMIN_PASSWORD}
             - OWNCLOUD_MYSQL_UTF8MB4=true
             - OWNCLOUD_REDIS_ENABLED=true
             - OWNCLOUD_REDIS_HOST=redis
