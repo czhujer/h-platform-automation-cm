@@ -4,7 +4,7 @@ write_files:
   - path: "/opt/bin/touch"
     permissions: '0644'
     owner: core:core
-  - path: /opt/docker/compose/owncloudstack/.env
+  - path: /opt/docker/compose/owncloudstack/.owncloud.env
     permissions: '0644'
     owner: core:core
     content: |
@@ -14,7 +14,21 @@ write_files:
       DB_USERNAME_OWNCLOUD=owncloud
       DB_PASSWORD_OWNCLOUD=ownpass
       DATABASE_OWNCLOUD=owncloud
-      DB_ROOT_PASSWORD=root_password
+  - path: /opt/docker/compose/owncloudstack/.db.env
+    permissions: '0644'
+    owner: core:core
+    content: |
+      MARIADB_USER=owncloud
+      MARIADB_PASSWORD=ownpass
+      MARIADB_DATABASE=owncloud
+      MARIADB_ROOT_PASSWORD=root_password
+      DB_USERNAME_EXPORTER=mysql_exporter
+      DB_PASSWORD_EXPORTER=exporterpass
+  - path: /opt/docker/compose/owncloudstack/.db_exporter.env
+    permissions: '0644'
+    owner: core:core
+    content: |
+      DATA_SOURCE_NAME="mysql_exporter:exporterpass@(db:3306)"
   - path: /opt/docker/compose/owncloudstack/docker-compose.yaml
     permissions: 0644
     content: |
@@ -34,12 +48,7 @@ write_files:
         db:
           image: mariadb/server:10.4
           restart: always
-          env_file: .env
-          environment:
-            - MARIADB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
-            - MARIADB_USER=${DB_USERNAME_OWNCLOUD}
-            - MARIADB_PASSWORD=${DB_PASSWORD_OWNCLOUD}
-            - MARIADB_DATABASE=${DATABASE_OWNCLOUD}
+          env_file: .db.env
           command:
             --max_heap_table_size=16M
             --innodb_buffer_pool_size=16M
@@ -52,13 +61,11 @@ write_files:
             - db
           image: prom/mysqld-exporter:latest
           restart: always
-          env_file: .env
+          env_file: .db_exporter.env
           networks:
             - app-network
           ports:
             - "9104:9104"
-          environment:
-            - DATA_SOURCE_NAME="user:password@(db:3306)/"
         redis:
           image: webhippie/redis:latest
           restart: always
@@ -91,7 +98,7 @@ write_files:
             - redis
           image: owncloud/server:10.3
           restart: unless-stopped
-          env_file: .env
+          env_file: .owncloud.env
           environment:
             - OWNCLOUD_DOMAIN=${OWNCLOUD_DOMAIN}
             - OWNCLOUD_DB_TYPE=mysql
@@ -120,14 +127,13 @@ write_files:
           image: nginx:1.17-alpine
           restart: unless-stopped
           healthcheck:
-            test: ["CMD", "wget", "-q", "http://127.0.0.1/nginx_status", "-O", "-"]
+            test: ["CMD", "wget", "-q", "http://127.0.0.1:8080/stub_status", "-O", "-"]
             interval: 30s
             timeout: 10s
             retries: 5
           ports:
             - "80:80"
           volumes:
-            #- web_data:/var/www/html
             - ./nginx-conf:/etc/nginx/conf.d
           networks:
             - app-network
