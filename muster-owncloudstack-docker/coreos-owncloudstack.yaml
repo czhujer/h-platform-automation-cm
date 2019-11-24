@@ -28,7 +28,7 @@ write_files:
     permissions: '0644'
     owner: core:core
     content: |
-      DATA_SOURCE_NAME="mysql_exporter:exporterpass@(db:3306)"
+      DATA_SOURCE_NAME=mysql_exporter:exporterpass@(db:3306)/
   - path: /opt/docker/compose/owncloudstack/docker-compose.yaml
     permissions: 0644
     content: |
@@ -54,6 +54,7 @@ write_files:
             --innodb_buffer_pool_size=16M
           volumes:
             - db_data:/var/lib/mysql
+            - ./db-init:/docker-entrypoint-initdb.d
           networks:
             - app-network
         db-exporter:
@@ -265,7 +266,15 @@ write_files:
               deny all;
           }
       }
-
+  - path: /opt/docker/compose/owncloudstack/db-init/mysql_exporter_user.sh
+    permissions: 0755
+    content: |
+      #!/bin/bash
+      echo "creating user for mysql_exporter..."
+      sql1="CREATE USER 'mysql_exporter'@'%' IDENTIFIED BY \"${DB_PASSWORD_EXPORTER}\" WITH MAX_USER_CONNECTIONS 3;"
+      sql2="GRANT PROCESS, REPLICATION CLIENT, SELECT ON *.* TO 'mysql_exporter'@'%';"
+      sql=${sql1}" "${sql2}
+      echo "${sql}" | mysql
 coreos:
   update:
     reboot-strategy: off
