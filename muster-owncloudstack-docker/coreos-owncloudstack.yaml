@@ -11,9 +11,9 @@ write_files:
       OWNCLOUD_DOMAIN=localhost
       OWNCLOUD_ADMIN_USERNAME=admin
       OWNCLOUD_ADMIN_PASSWORD=adminpass
-      DB_USERNAME_OWNCLOUD=owncloud
-      DB_PASSWORD_OWNCLOUD=ownpass
-      DATABASE_OWNCLOUD=owncloud
+      OWNCLOUD_DB_USERNAME=owncloud
+      OWNCLOUD_DB_PASSWORD=ownpass
+      OWNCLOUD_DB_NAME=owncloud
   - path: /opt/docker/compose/owncloudstack/.db.env
     permissions: '0644'
     owner: core:core
@@ -100,14 +100,8 @@ write_files:
           restart: unless-stopped
           env_file: .owncloud.env
           environment:
-            - OWNCLOUD_DOMAIN=${OWNCLOUD_DOMAIN}
             - OWNCLOUD_DB_TYPE=mysql
-            - OWNCLOUD_DB_NAME=${DATABASE_OWNCLOUD}
-            - OWNCLOUD_DB_USERNAME=${DB_USERNAME_OWNCLOUD}
-            - OWNCLOUD_DB_PASSWORD=${DB_PASSWORD_OWNCLOUD}
             - OWNCLOUD_DB_HOST=db
-            - OWNCLOUD_ADMIN_USERNAME=${OWNCLOUD_ADMIN_USERNAME}
-            - OWNCLOUD_ADMIN_PASSWORD=${OWNCLOUD_ADMIN_PASSWORD}
             - OWNCLOUD_MYSQL_UTF8MB4=true
             - OWNCLOUD_REDIS_ENABLED=true
             - OWNCLOUD_REDIS_HOST=redis
