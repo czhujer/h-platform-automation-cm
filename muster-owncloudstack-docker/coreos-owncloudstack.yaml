@@ -10,7 +10,9 @@ write_files:
     content: |
       DB_OWNCLOUD_USERNAME=owncloud_user
       DB_OWNCLOUD_NAME=owncloud_db
+      DB_EXPORTER_USERNAME=mysql_exporter
     # DB_OWNCLOUD_PASSWORD will be auto-generated
+    # DB_EXPORTER_PASSWORD will be auto-generated
   - path: /opt/docker/compose/owncloudstack/.owncloud.env
     permissions: '0644'
     owner: core:core
@@ -22,14 +24,7 @@ write_files:
     permissions: '0644'
     owner: core:core
     content: |
-      DB_USERNAME_EXPORTER=mysql_exporter
-      DB_PASSWORD_EXPORTER=exporterpass
     # MARIADB_ROOT_PASSWORD will be auto-generated
-  - path: /opt/docker/compose/owncloudstack/.db_exporter.env
-    permissions: '0644'
-    owner: core:core
-    content: |
-      DATA_SOURCE_NAME=mysql_exporter:exporterpass@(db:3306)/
   - path: /opt/docker/compose/owncloudstack/docker-compose.yaml
     permissions: 0644
     content: |
@@ -55,6 +50,8 @@ write_files:
             MARIADB_USER: ${DB_OWNCLOUD_USERNAME}
             MARIADB_PASSWORD: ${DB_OWNCLOUD_PASSWORD}
             MARIADB_DATABASE: ${DB_OWNCLOUD_NAME}
+            DB_EXPORTER_USERNAME: ${DB_EXPORTER_USERNAME}
+            DB_EXPORTER_PASSWORD: ${DB_EXPORTER_PASSWORD}
           command:
             --max_heap_table_size=16M
             --innodb_buffer_pool_size=16M
@@ -68,7 +65,8 @@ write_files:
             - db
           image: prom/mysqld-exporter:latest
           restart: always
-          env_file: .db_exporter.env
+          environment:
+            - DATA_SOURCE_NAME=${DB_EXPORTER_USERNAME}:${DB_EXPORTER_PASSWORD}@(db:3306)/
           networks:
             - app-network
           ports:
@@ -281,7 +279,7 @@ write_files:
     content: |
       #!/bin/bash
       echo "creating user for mysql_exporter..."
-      sql1="CREATE USER 'mysql_exporter'@'%' IDENTIFIED BY \"${DB_PASSWORD_EXPORTER}\" WITH MAX_USER_CONNECTIONS 3;"
+      sql1="CREATE USER 'mysql_exporter'@'%' IDENTIFIED BY \"${DB_EXPORTER_PASSWORD}\" WITH MAX_USER_CONNECTIONS 3;"
       sql2="GRANT PROCESS, REPLICATION CLIENT, SELECT ON *.* TO 'mysql_exporter'@'%';"
       sql=${sql1}" "${sql2}
       echo "${sql}" | mysql
@@ -311,10 +309,11 @@ coreos:
         ExecStartPre=-/bin/bash -c 'if [ ! -s /opt/bin/go-dotenv-generator ]; then sudo curl -s -L "https://github.com/czhujer/go-dotenv-generator/releases/download/v1.0.8/go-dotenv-generator" > /opt/bin/go-dotenv-generator; fi;'
         ExecStartPre=-/bin/bash -c 'if [ ! -x /opt/bin/go-dotenv-generator ]; then chmod 755 /opt/bin/go-dotenv-generator; fi;'
 
-        # generate passwords in env file
+        # generate passwords and write them in env file(s)
         ExecStartPre=-/bin/bash -c '/opt/bin/go-dotenv-generator -f /opt/docker/compose/owncloudstack/.owncloud.env OWNCLOUD_ADMIN_PASSWORD'
         ExecStartPre=-/bin/bash -c '/opt/bin/go-dotenv-generator -f /opt/docker/compose/owncloudstack/.db.env MARIADB_ROOT_PASSWORD'
         ExecStartPre=-/bin/bash -c '/opt/bin/go-dotenv-generator -f /opt/docker/compose/owncloudstack/.env DB_OWNCLOUD_PASSWORD'
+        ExecStartPre=-/bin/bash -c '/opt/bin/go-dotenv-generator -f /opt/docker/compose/owncloudstack/.env DB_EXPORTER_PASSWORD'
 
         # Remove old containers, images and volumes
         ExecStartPre=/opt/bin/docker-compose down -v
