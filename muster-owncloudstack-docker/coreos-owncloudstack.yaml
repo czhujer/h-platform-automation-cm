@@ -4,26 +4,27 @@ write_files:
   - path: "/opt/bin/touch"
     permissions: '0644'
     owner: core:core
+  - path: /opt/docker/compose/owncloudstack/.env
+    permissions: '0644'
+    owner: core:core
+    content: |
+      DB_OWNCLOUD_USERNAME=owncloud_user
+      DB_OWNCLOUD_NAME=owncloud_db
+    # DB_OWNCLOUD_PASSWORD will be auto-generated
   - path: /opt/docker/compose/owncloudstack/.owncloud.env
     permissions: '0644'
     owner: core:core
     content: |
       OWNCLOUD_DOMAIN=localhost
       OWNCLOUD_ADMIN_USERNAME=admin
-      OWNCLOUD_ADMIN_PASSWORD=adminpass
-      OWNCLOUD_DB_USERNAME=owncloud
-      OWNCLOUD_DB_PASSWORD=ownpass
-      OWNCLOUD_DB_NAME=owncloud
+    # OWNCLOUD_ADMIN_PASSWORD will be auto-generated
   - path: /opt/docker/compose/owncloudstack/.db.env
     permissions: '0644'
     owner: core:core
     content: |
-      MARIADB_USER=owncloud
-      MARIADB_PASSWORD=ownpass
-      MARIADB_DATABASE=owncloud
-      MARIADB_ROOT_PASSWORD=root_password
       DB_USERNAME_EXPORTER=mysql_exporter
       DB_PASSWORD_EXPORTER=exporterpass
+    # MARIADB_ROOT_PASSWORD will be auto-generated
   - path: /opt/docker/compose/owncloudstack/.db_exporter.env
     permissions: '0644'
     owner: core:core
@@ -48,7 +49,12 @@ write_files:
         db:
           image: mariadb/server:10.4
           restart: always
-          env_file: .db.env
+          env_file:
+            - .db.env
+          environment:
+            MARIADB_USER: ${DB_OWNCLOUD_USERNAME}
+            MARIADB_PASSWORD: ${DB_OWNCLOUD_PASSWORD}
+            MARIADB_DATABASE: ${DB_OWNCLOUD_NAME}
           command:
             --max_heap_table_size=16M
             --innodb_buffer_pool_size=16M
@@ -99,8 +105,12 @@ write_files:
             - redis
           image: owncloud/server:10.3
           restart: unless-stopped
-          env_file: .owncloud.env
+          env_file:
+            - .owncloud.env
           environment:
+            - OWNCLOUD_DB_USERNAME=${DB_OWNCLOUD_USERNAME}
+            - OWNCLOUD_DB_PASSWORD=${DB_OWNCLOUD_PASSWORD}
+            - OWNCLOUD_DB_NAME=${DB_OWNCLOUD_NAME}
             - OWNCLOUD_DB_TYPE=mysql
             - OWNCLOUD_DB_HOST=db
             - OWNCLOUD_MYSQL_UTF8MB4=true
