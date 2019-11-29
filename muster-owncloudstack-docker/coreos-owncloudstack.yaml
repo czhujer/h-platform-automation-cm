@@ -307,6 +307,15 @@ coreos:
         ExecStartPre=-/bin/bash -c 'if [ ! -s /opt/bin/docker-compose ]; then sudo curl -s -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-Linux-x86_64" > /opt/bin/docker-compose; fi;'
         ExecStartPre=-/bin/bash -c 'if [ ! -x /opt/bin/docker-compose ]; then chmod 755 /opt/bin/docker-compose; fi;'
 
+        # download go-dotenv-generator
+        ExecStartPre=-/bin/bash -c 'if [ ! -s /opt/bin/go-dotenv-generator ]; then sudo curl -s -L "https://github.com/czhujer/go-dotenv-generator/releases/download/v1.0.8/go-dotenv-generator" > /opt/bin/go-dotenv-generator; fi;'
+        ExecStartPre=-/bin/bash -c 'if [ ! -x /opt/bin/go-dotenv-generator ]; then chmod 755 /opt/bin/go-dotenv-generator; fi;'
+
+        # generate passwords in env file
+        ExecStartPre=-/bin/bash -c '/opt/bin/go-dotenv-generator -f /opt/docker/compose/owncloudstack/.owncloud.env OWNCLOUD_ADMIN_PASSWORD'
+        ExecStartPre=-/bin/bash -c '/opt/bin/go-dotenv-generator -f /opt/docker/compose/owncloudstack/.db.env MARIADB_ROOT_PASSWORD'
+        ExecStartPre=-/bin/bash -c '/opt/bin/go-dotenv-generator -f /opt/docker/compose/owncloudstack/.env DB_OWNCLOUD_PASSWORD'
+
         # Remove old containers, images and volumes
         ExecStartPre=/opt/bin/docker-compose down -v
         ExecStartPre=/opt/bin/docker-compose rm -fv
