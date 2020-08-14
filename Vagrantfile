@@ -27,6 +27,11 @@ Vagrant.configure('2') do |config|
           host.vm.box = "centos/7"
       elsif name == "hpa-pxm1"
           host.vm.box = "debian/stretch64"
+
+          # Expose http/s port
+          host.vm.network "forwarded_port", guest: 80, host: 8180, auto_correct: true
+          host.vm.network "forwarded_port", guest: 443, host: 8143, auto_correct: true
+          host.vm.network "forwarded_port", guest: 8006, host: 8106, auto_correct: true
       end
 
       if name == "hpa-pxm1"
