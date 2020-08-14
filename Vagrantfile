@@ -18,6 +18,9 @@ Vagrant.configure('2') do |config|
     v.cpus = 2
   end
 
+  dir = File.expand_path("..", __FILE__)
+  puts "DIR_cm: #{dir}"
+
   servers['vagrant'].each do |name, server_config|
     config.vm.define name do |host|
       if name == "hpa-hq1"
@@ -30,7 +33,7 @@ Vagrant.configure('2') do |config|
         config.vm.provision :shell, :inline => "apt-get update && apt-get install -y sshfs", :privileged => true
       end
 
-      config.vm.synced_folder '.', '/vagrant', type: 'sshfs'
+      config.vm.synced_folder dir, '/vagrant', type: 'sshfs'
       host.vm.hostname = name
 
     end
@@ -41,11 +44,11 @@ Vagrant.configure('2') do |config|
   servers['vagrant'].each do |name, server_config|
     config.vm.define name do |host|
       if name == "hpa-hq1"
-        config.vm.provision :shell, path: 'bootstrap-scripts/bootstrap_ruby.sh', :privileged => true
-        config.vm.provision :shell, path: 'bootstrap-scripts/bootstrap_puppet.sh', :privileged => true
+        config.vm.provision :shell, path: File.join(dir,'bootstrap-scripts/bootstrap_ruby.sh'), :privileged => true
+        config.vm.provision :shell, path: File.join(dir,'bootstrap-scripts/bootstrap_puppet.sh'), :privileged => true
       elsif name == "hpa-pxm1"
-        config.vm.provision :shell, path: 'bootstrap-scripts/bootstrap_ruby_debian.sh', :privileged => true
-        config.vm.provision :shell, path: 'bootstrap-scripts/bootstrap_puppet.sh', :privileged => true
+        config.vm.provision :shell, path: File.join(dir,'bootstrap-scripts/bootstrap_ruby_debian.sh'), :privileged => true
+        config.vm.provision :shell, path: File.join(dir,'bootstrap-scripts/bootstrap_puppet.sh'), :privileged => true
       end
     end
   end
@@ -60,7 +63,7 @@ Vagrant.configure('2') do |config|
 
         # fix PKI
         host.vm.provision :shell, :inline => "echo 'generate pki certs for webserver..'"
-        host.vm.provision :shell, path: 'scripts/pki-make-dummy-cert.sh', args: ["localhost"], :privileged => true
+        host.vm.provision :shell, path: File.join(dir,'scripts/pki-make-dummy-cert.sh'), args: ["localhost"], :privileged => true
 
         host.vm.provision :shell, :inline => "echo 'starting r10k install .. and puppet apply...'"
 
@@ -73,7 +76,7 @@ Vagrant.configure('2') do |config|
         host.vm.provision :shell, :inline => "source /opt/rh/rh-ruby25/enable; puppet apply --color=false --detailed-exitcodes /etc/puppet/manifests; retval=$?; if [[ $retval -eq 2 ]]; then exit 0; else exit $retval; fi;", :privileged => true
       elsif name == "hpa-pxm1"
         # fix PKI
-        host.vm.provision "pki", type: "shell", path: 'scripts/pki-make-dummy-cert-debian.sh', args: ["localhost"], :privileged => true
+        host.vm.provision "pki", type: "shell", path: File.join(dir,'scripts/pki-make-dummy-cert-debian.sh'), args: ["localhost"], :privileged => true
 
         # fix hostname for proxmox
         host.vm.provision "fix-hosts", type: "shell", :inline => "sudo sed -i \"/\\b\hpa-pxm1\\b/d\" /etc/hosts; sudo echo \"$(hostname -I | cut -d ' ' -f 1 |tr -d '\n')\t\t#{name}\" >> /etc/hosts"
