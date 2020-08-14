@@ -11,18 +11,17 @@ Vagrant.require_version ">= 2.0.0"
 servers = {"vagrant" => {"hpa-hq1" => "vm", "hpa-pxm1" => "vm"}}
 
 Vagrant.configure('2') do |config|
-  #config.vm.box = 'centos/7'
-
-  config.vm.provider :libvirt do |v|
-    v.memory = 1024
-    v.cpus = 2
-  end
-
-  dir = File.expand_path("..", __FILE__)
-  puts "DIR_cm: #{dir}"
 
   servers['vagrant'].each do |name, server_config|
+    dir = File.expand_path("..", __FILE__)
+    puts "DIR_cm: #{dir}"
+
     config.vm.define name do |host|
+      host.vm.provider :libvirt do |v|
+        v.memory = 1536
+        v.cpus = 2
+      end
+
       if name == "hpa-hq1"
           host.vm.box = "centos/7"
       elsif name == "hpa-pxm1"
@@ -35,25 +34,28 @@ Vagrant.configure('2') do |config|
       end
 
       if name == "hpa-pxm1"
-        config.vm.provision :shell, :inline => "apt-get update && apt-get install -y sshfs", :privileged => true
+        host.vm.provision :shell, :inline => "apt-get update && apt-get install -y sshfs", :privileged => true
       end
 
-      config.vm.synced_folder dir, '/vagrant', type: 'sshfs'
+      host.vm.synced_folder dir, '/vagrant', type: 'sshfs'
       host.vm.hostname = name
 
     end
   end
 
   # run ruby and puppet bootstrap
-  config.vm.provision :shell, :inline => "echo 'starting bootstrap ruby and puppet...'"
   servers['vagrant'].each do |name, server_config|
+    config.vm.provision :shell, :inline => "echo 'starting bootstrap ruby and puppet...'"
+    dir = File.expand_path("..", __FILE__)
+    puts "DIR_cm: #{dir}"
+
     config.vm.define name do |host|
       if name == "hpa-hq1"
-        config.vm.provision :shell, path: File.join(dir,'bootstrap-scripts/bootstrap_ruby.sh'), :privileged => true
-        config.vm.provision :shell, path: File.join(dir,'bootstrap-scripts/bootstrap_puppet.sh'), :privileged => true
+        host.vm.provision :shell, path: File.join(dir,'bootstrap-scripts/bootstrap_ruby.sh'), :privileged => true
+        host.vm.provision :shell, path: File.join(dir,'bootstrap-scripts/bootstrap_puppet.sh'), :privileged => true
       elsif name == "hpa-pxm1"
-        config.vm.provision :shell, path: File.join(dir,'bootstrap-scripts/bootstrap_ruby_debian.sh'), :privileged => true
-        config.vm.provision :shell, path: File.join(dir,'bootstrap-scripts/bootstrap_puppet.sh'), :privileged => true
+        host.vm.provision :shell, path: File.join(dir,'bootstrap-scripts/bootstrap_ruby_debian.sh'), :privileged => true
+        host.vm.provision :shell, path: File.join(dir,'bootstrap-scripts/bootstrap_puppet.sh'), :privileged => true
       end
     end
   end
@@ -63,6 +65,9 @@ Vagrant.configure('2') do |config|
   #
 
   servers['vagrant'].each do |name, server_config|
+    dir = File.expand_path("..", __FILE__)
+    puts "DIR_cm: #{dir}"
+
     config.vm.define name do |host|
       if name == "hpa-hq1"
 
