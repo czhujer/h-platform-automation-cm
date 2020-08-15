@@ -19,11 +19,11 @@ yum -q -y install gcc-c++ patch readline-devel zlib-devel libxml2-devel libyaml-
 
 yum install -q -y yum install centos-release-scl
 
-yum install rh-ruby25 rh-ruby25-ruby-devel -y -q
+yum install rh-ruby26 rh-ruby26-ruby-devel -y -q
 
 #mkdir -p /usr/local/share/gems && mkdir -p /usr/local/rvm/gems && ln -s /usr/local/share/gems /usr/local/rvm/gems/ruby-2.4.3
 
-echo 'source /opt/rh/rh-ruby25/enable' >> /root/.bashrc
+echo 'source /opt/rh/rh-ruby26/enable' >> /root/.bashrc
 
 echo '' >> /root/.bashrc;
 echo 'unset GEM_HOME' >> /root/.bashrc;

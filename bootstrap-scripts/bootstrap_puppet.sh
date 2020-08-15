@@ -3,22 +3,22 @@
   # Update rubygems, and pull down facter and then puppet...
   #gem update --system
   #gem update --system --no-document --install-dir /usr/local/share/gems -q
-  gem update --system --no-document -q # --install-dir /usr/share/gems
+  gem update --system --no-document --no-post-install-message  -q # --install-dir /usr/share/gems
 
-  gem install json_pure --no-document #--install-dir /usr/share/gems
-  gem install facter --no-document #--install-dir /usr/share/gems
-  #gem install libshadow --no-document #--install-dir /usr/share/gems
-  gem install puppet-module --no-document #--install-dir /usr/share/gems
-  gem install ruby-augeas --no-document #--install-dir /usr/share/gems
-  gem install syck --no-document #--install-dir /usr/share/gems
-  gem install puppet --no-document -v5.5.17 #--install-dir /usr/share/gems
+  gem install json_pure --no-document --no-post-install-message  #--install-dir /usr/share/gems
+  gem install facter --no-document --no-post-install-message  #--install-dir /usr/share/gems
+  #gem install libshadow --no-document --no-post-install-message  #--install-dir /usr/share/gems
+  gem install puppet-module --no-document --no-post-install-message  #--install-dir /usr/share/gems
+  gem install ruby-augeas --no-document --no-post-install-message  #--install-dir /usr/share/gems
+  gem install syck --no-document --no-post-install-message  #--install-dir /usr/share/gems
+  gem install puppet --no-document --no-post-install-message -v5.5.21 #--install-dir /usr/share/gems
 
   # install r10k
-  gem install --no-document r10k -v3.3.3 #--install-dir /usr/share/gems
+  gem install --no-document --no-post-install-message r10k -v3.5.2 #--install-dir /usr/share/gems
 
   #remove old gems
-  gem uninstall puppet --version '<5.5.17' -a
-  gem uninstall r10k --version '<3.3.3' -a
+  gem uninstall puppet --version '<5.5.21' -a
+  gem uninstall r10k --version '<3.5.2' -a
 
   if [ ! -L /etc/puppetlabs/code/modules ]; then
     rm -rf /etc/puppetlabs/code/modules;
