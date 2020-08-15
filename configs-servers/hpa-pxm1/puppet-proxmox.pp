@@ -31,8 +31,21 @@ package { $proxmox_packages:
 #   #try_sleep   => 1
 # }
 
+exec { 'download centos-7 template':
+  command  => 'pveam download local centos-7-default_20190926_amd64.tar.xz',
+  path     => '/usr/bin:/usr/sbin:/bin',
+  provider => shell,
+  unless   => 'stat /var/lib/vz/template/cache/centos-7-default_20190926_amd64.tar.xz',
+}
+
+#
+#TO-DO
+#
+
 # apt remove os-prober
 
 # apt remove linux-image-amd64 linux-image-4.9.0-3-amd64
 
 # update-grub
+
+# add/reconfigure bridge and networking
