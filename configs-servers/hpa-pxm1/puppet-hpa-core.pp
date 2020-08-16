@@ -30,7 +30,8 @@ file { '/root/scripts/pxm-create-container.rb':
 
 # neccesary folders for pxm-create-container.rb
 file { ['/home/jenkins-slave/workspace', '/home/jenkins-slave/workspace/create-owncloud-b2c-container']:
-  ensure => 'directory',
+  ensure  => 'directory',
+  require => Class['jenkins::slave'],
 }
 
 # neccesary lib(s) for pxm-create-container.rb
