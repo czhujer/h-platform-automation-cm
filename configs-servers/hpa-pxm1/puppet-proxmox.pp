@@ -105,7 +105,7 @@ exec { 'fix network config for pve':
   command  => 'bash /root/scripts/pve-fix-networking.sh',
   path     => '/usr/bin:/usr/sbin:/bin:/sbin',
   #provider => shell,
-  unless   => 'brctl show br0 |grep ens',
+  unless   => 'brctl show vmbr0 |grep ens',
   require  => [
     Package[$proxmox_packages_absent],
     Class['nginx'],
