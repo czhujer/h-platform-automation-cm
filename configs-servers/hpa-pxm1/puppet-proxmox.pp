@@ -83,13 +83,14 @@ iface lo inet loopback
 
 " > /etc/network/interfaces
 
-echo "auto ens5
+echo "#auto ens5
 iface ens5 inet manual
+	pre-up ifconfig ens5 up
+	post-down ifconfig ens5 down
 
 auto vmbr0
-# Bridge setup
 iface vmbr0 inet dhcp
-      bridge_ports ens5
+	bridge_ports ens5
 " >> /etc/network/interfaces
 
 systemctl restart networking
