@@ -3,7 +3,7 @@
   # Update rubygems, and pull down facter and then puppet...
   #gem update --system
   #gem update --system --no-document --install-dir /usr/local/share/gems -q
-  gem update --system --no-document --no-post-install-message  -q # --install-dir /usr/share/gems
+  gem update --system --no-document --no-post-install-message  -q --silent # --install-dir /usr/share/gems
 
   gem install json_pure --no-document --no-post-install-message  #--install-dir /usr/share/gems
   gem install facter --no-document --no-post-install-message  #--install-dir /usr/share/gems
