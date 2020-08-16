@@ -26,8 +26,8 @@ rvm get stable && rvm cleanup all
 source /etc/profile.d/rvm.sh
 
 # Install Ruby
-rvm install ruby-2.5.5
-rvm alias create default ruby-2.5.5
+rvm install ruby-2.6.6
+rvm alias create default ruby-2.6.6
 
 source /etc/profile.d/rvm.sh
 
