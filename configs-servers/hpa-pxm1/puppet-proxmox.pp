@@ -50,10 +50,6 @@ exec { 'download centos-7 template':
   require  => Package[$proxmox_packages],
 }
 
-#
-#TO-DO
-#
-
 $proxmox_packages_absent = ['os-prober', 'linux-image-amd64',
                             'linux-image-4.9.0-12-amd64', 'linux-image-4.9.0-13-amd64']
 
