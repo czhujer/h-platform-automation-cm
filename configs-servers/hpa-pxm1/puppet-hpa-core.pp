@@ -40,9 +40,3 @@ exec { 'download gem proxmox':
   #provider => shell,
   unless   => 'bash -E -c "source /etc/profile.d/rvm.sh; gem list -i fog-proxmox"',
 }
-
-#
-# terraform - owncloudstack
-#
-
-# download terraform and plugins
