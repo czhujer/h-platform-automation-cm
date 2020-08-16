@@ -83,7 +83,10 @@ iface lo inet loopback
 
 " > /etc/network/interfaces
 
-echo "auto vmbr0
+echo "auto ens5
+iface ens5 inet manual
+
+auto vmbr0
 # Bridge setup
 iface vmbr0 inet dhcp
       bridge_ports ens5
