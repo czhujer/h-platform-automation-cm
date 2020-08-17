@@ -62,7 +62,7 @@ package { $proxmox_packages_absent:
 }
 
 $proxmox_create_config_file = '#!/bin/bash
-password=$(openssl rand -base64 8)
+password=$(openssl rand -base64 8 |sed \'s/=//\')
 
 echo "---
 - login:
