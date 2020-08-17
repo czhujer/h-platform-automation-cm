@@ -61,6 +61,34 @@ package { $proxmox_packages_absent:
   ],
 }
 
+$proxmox_create_config_file = '#!/bin/bash
+password=$(openssl rand -base64 8)
+
+echo "---
+- login:
+  - user: root@pam
+  - password: $password
+" > /root/proxmox-config.yaml
+
+echo "root:$password" | chpasswd
+'
+
+file { '/root/scripts/pve-create-login.sh':
+  ensure   => 'present',
+  content  => $proxmox_create_config_file,
+  require  => File['/root/scripts'],
+}
+
+exec { 'create config for pve':
+  command  => 'bash /root/scripts/pve-create-login.sh',
+  path     => '/usr/bin:/usr/sbin:/bin:/sbin',
+  #provider => shell,
+  unless   => 'stat /root/proxmox-config.yaml',
+  require  => [
+    File['/root/scripts/pve-create-login.sh'],
+  ],
+}
+
 # add/reconfigure bridge and networking
 $script_bridged_networking = '#!/bin/bash
 
