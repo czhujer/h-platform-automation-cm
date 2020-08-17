@@ -61,6 +61,34 @@ package { $proxmox_packages_absent:
   ],
 }
 
+$proxmox_create_config_file = '#!/bin/bash
+password=$(openssl rand -base64 8 |sed \'s/=//\')
+
+echo "---
+- login:
+  - user: root@pam
+  - password: $password
+" > /root/proxmox-config.yaml
+
+echo "root:$password" | chpasswd
+'
+
+file { '/root/scripts/pve-create-login.sh':
+  ensure   => 'present',
+  content  => $proxmox_create_config_file,
+  require  => File['/root/scripts'],
+}
+
+exec { 'create config for pve':
+  command  => 'bash /root/scripts/pve-create-login.sh',
+  path     => '/usr/bin:/usr/sbin:/bin:/sbin',
+  #provider => shell,
+  unless   => 'stat /root/proxmox-config.yaml',
+  require  => [
+    File['/root/scripts/pve-create-login.sh'],
+  ],
+}
+
 # add/reconfigure bridge and networking
 $script_bridged_networking = '#!/bin/bash
 
@@ -83,10 +111,14 @@ iface lo inet loopback
 
 " > /etc/network/interfaces
 
-echo "auto vmbr0
-# Bridge setup
+echo "#auto ens5
+iface ens5 inet manual
+	pre-up ifconfig ens5 up
+	post-down ifconfig ens5 down
+
+auto vmbr0
 iface vmbr0 inet dhcp
-      bridge_ports ens5
+	bridge_ports ens5
 " >> /etc/network/interfaces
 
 systemctl restart networking
@@ -102,7 +134,7 @@ exec { 'fix network config for pve':
   command  => 'bash /root/scripts/pve-fix-networking.sh',
   path     => '/usr/bin:/usr/sbin:/bin:/sbin',
   #provider => shell,
-  unless   => 'brctl show br0 |grep ens',
+  unless   => 'brctl show vmbr0 |grep ens',
   require  => [
     Package[$proxmox_packages_absent],
     Class['nginx'],
