@@ -36,23 +36,23 @@
 # jenkins client
 #
 
-class {'jenkins::slave':
-  masterurl         => 'https://hpa-hq1',
-  install_java      => true,
-  labels            => "debian debian9 hpa-pxm1",
-  version           => '3.17',
-  slave_name        => "hpa-pxm1",
-  executors         => 4,
-  disable_ssl_verification => true,
-}
-
-$c="#\nDefaults:jenkins-slave !requiretty\n#\njenkins-slave	ALL=(ALL)	NOPASSWD: ALL\n"
-
-file {"jenkins-slave sudo file":
-  path => "/etc/sudoers.d/jenkins-slave",
-  ensure  => present,
-  content => $c,
-}
+# class {'jenkins::slave':
+#   masterurl         => 'https://hpa-hq1',
+#   install_java      => true,
+#   labels            => "debian debian9 hpa-pxm1",
+#   version           => '3.17',
+#   slave_name        => "hpa-pxm1",
+#   executors         => 4,
+#   disable_ssl_verification => true,
+# }
+#
+# $c="#\nDefaults:jenkins-slave !requiretty\n#\njenkins-slave	ALL=(ALL)	NOPASSWD: ALL\n"
+#
+# file {"jenkins-slave sudo file":
+#   path => "/etc/sudoers.d/jenkins-slave",
+#   ensure  => present,
+#   content => $c,
+# }
 
 #
 # others
