@@ -4,7 +4,7 @@
 
 $packages_system = ["iftop", "iptraf", "tcpdump", "htop", "iotop",
   "bind-utils", "telnet", "lsof", "vim-minimal", "yum-utils",
-  "traceroute", "vim-enhanced", "numad", "apachetop",
+  "traceroute", "vim-enhanced", "numad", "apachetop", "git",
 ]
 
 package { $packages_system:
