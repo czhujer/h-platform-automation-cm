@@ -20,6 +20,10 @@ file { '/root/scripts':
   ensure => 'directory',
 }
 
+file { '/root/docker-compose/c-and-c-server':
+  ensure => 'directory',
+}
+
 #
 # terraform - owncloudstack
 #

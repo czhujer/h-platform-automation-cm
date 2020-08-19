@@ -79,7 +79,7 @@ Vagrant.configure('2') do |config|
         host.vm.provision "copy-r10k-files", type: "shell", :inline => "cd /vagrant && cp configs-servers/hpa-hq1/Puppetfile /etc/puppet/Puppetfile", :privileged => true
         host.vm.provision "run-r10k", type: "shell", :inline => "cd /etc/puppet && r10k puppetfile install --force --puppetfile /etc/puppet/Puppetfile", :privileged => true
 
-        host.vm.provision "copy-puppet-files", type: "shell", :inline => "cd /vagrant && cp configs-servers/hpa-hq1/*.pp /etc/puppet/manifests/", :privileged => true
+        host.vm.provision "copy-puppet-files", type: "shell", :inline => "cd /vagrant && cp configs-servers/hpa-hq1/*.pp /etc/puppet/manifests && mkdir -p /root/docker-compose && cp -r docker-compose /root", :privileged => true
         host.vm.provision "run-puppet", type: "shell", :inline => "puppet apply --color=false --detailed-exitcodes /etc/puppet/manifests; retval=$?; if [[ $retval -eq 2 ]]; then exit 0; else exit $retval; fi;", :privileged => true
       elsif name == "hpa-pxm1"
         # fix PKI
