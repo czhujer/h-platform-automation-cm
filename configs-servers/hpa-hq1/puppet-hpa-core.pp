@@ -12,7 +12,8 @@ vcsrepo { '/root/h-platform-automation-cc-server':
   ensure   => latest,
   provider => git,
   source   => 'https://github.com/czhujer/h-platform-automation-cc-server.git',
-  revision => 'master',
+  #revision => 'master',
+  tag      => 'v0.1',
   require  => Package['git'],
 }
 
