@@ -5,7 +5,7 @@ vcsrepo { '/root/h-platform-automation-core':
   provider => git,
   source   => 'https://github.com/czhujer/h-platform-automation-core.git',
   revision => 'master',
-  require  => Package[$packages_system],
+  require  => Package['git'],
 }
 
 vcsrepo { '/root/h-platform-automation-cc-server':
@@ -13,7 +13,7 @@ vcsrepo { '/root/h-platform-automation-cc-server':
   provider => git,
   source   => 'https://github.com/czhujer/h-platform-automation-cc-server.git',
   revision => 'master',
-  require  => Package[$packages_system],
+  require  => Package['git'],
 }
 
 file { '/root/scripts':

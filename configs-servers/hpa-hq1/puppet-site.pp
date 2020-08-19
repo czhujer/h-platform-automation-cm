@@ -4,11 +4,14 @@
 
 $packages_system = ["iftop", "iptraf", "tcpdump", "htop", "iotop",
   "bind-utils", "telnet", "lsof", "vim-minimal", "yum-utils",
-  "traceroute", "vim-enhanced", "numad", "apachetop", "git",
+  "traceroute", "vim-enhanced", "numad", "apachetop",
 ]
 
 package { $packages_system:
-  ensure => "installed",
+  ensure => 'installed',
+}
+package { 'git':
+  ensure => 'installed',
 }
 
 # change MC color scheme
