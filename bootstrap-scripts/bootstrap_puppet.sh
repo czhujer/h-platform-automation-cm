@@ -1,20 +1,17 @@
 #!/bin/bash
 
   # Update rubygems, and pull down facter and then puppet...
-  #gem update --system
-  #gem update --system --no-document --install-dir /usr/local/share/gems -q
-  gem update --system --no-document --no-post-install-message  -q --silent # --install-dir /usr/share/gems
+  gem update --system --no-document --no-post-install-message  -q --silent 
 
-  gem install json_pure --no-document --no-post-install-message  #--install-dir /usr/share/gems
-  gem install facter --no-document --no-post-install-message  #--install-dir /usr/share/gems
-  #gem install libshadow --no-document --no-post-install-message  #--install-dir /usr/share/gems
-  gem install puppet-module --no-document --no-post-install-message  #--install-dir /usr/share/gems
-  gem install ruby-augeas --no-document --no-post-install-message  #--install-dir /usr/share/gems
-  gem install syck --no-document --no-post-install-message  #--install-dir /usr/share/gems
-  gem install puppet --no-document --no-post-install-message -v5.5.21 #--install-dir /usr/share/gems
-
+  gem install json_pure --no-document --no-post-install-message  
+  gem install facter --no-document --no-post-install-message  
+  #gem install libshadow --no-document --no-post-install-message  
+  gem install puppet-module --no-document --no-post-install-message  
+  gem install ruby-augeas --no-document --no-post-install-message  
+  # gem install syck --no-document --no-post-install-message  
+  gem install puppet --no-document --no-post-install-message -v5.5.21 
   # install r10k
-  gem install --no-document --no-post-install-message r10k -v3.5.2 #--install-dir /usr/share/gems
+  gem install --no-document --no-post-install-message r10k -v3.5.2 
 
   #remove old gems
   gem uninstall puppet --version '<5.5.21' -a
@@ -49,5 +46,3 @@ EOF
 
 # create custom facts for facter
 $sudo mkdir -p /etc/facter/facts.d
-
-#$sudo yum -y erase gcc-c++ readline-devel zlib-devel libxml2-devel libyaml-devel libxslt-devel libffi-devel openssl-devel augeas-devel
