@@ -13,20 +13,20 @@ mod 'puppetlabs-apt', '7.2.0'
 
 mod 'puppetlabs-firewall', '2.1.0'
 
-mod 'puppetlabs-pe_gem', '0.2.0'
+#mod 'puppetlabs-pe_gem', '0.2.0'
 
-mod 'puppetlabs-ruby', '1.0.1'
+#mod 'puppetlabs-ruby', '1.0.1'
 
 mod 'saz-timezone', '5.1.1'
 
 # 'saz-timezone' (v5.1.1) requires 'stm-debconf' (>= 2.0.0 < 3.0.0)
 mod 'stm-debconf', '2.3.0'
 
-mod 'puppetlabs-java', '4.1.0'
+#mod 'puppetlabs-java', '4.1.0'
 
 mod 'puppet-archive', '4.4.0'
 
-mod 'puppet-zypprepo', '2.2.2'
+#mod 'puppet-zypprepo', '2.2.2'
 
 #mod 'beats',
 #  :git => 'https://github.com/H-Software/puppet-beats.git',
@@ -35,7 +35,7 @@ mod 'puppet-zypprepo', '2.2.2'
 
 # mod 'puppet-jenkins', '2.0.0'
 
-mod 'puppetlabs-transition', '0.1.1'
+# mod 'puppetlabs-transition', '0.1.1'
 
 mod 'puppetlabs-vcsrepo', '3.0.0'
 
