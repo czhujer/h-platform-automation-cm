@@ -20,22 +20,22 @@ class { 'nginx':
   http2         => 'on',
 }
 
-#firewall { '120 accept tcp to dports 80,443 / NGINX':
-#    chain   => 'INPUT',
-#    state   => 'NEW',
-#    proto   => 'tcp',
-#    dport   => ['80', '443'],
-#    action  => 'accept',
-#}
+firewall { '120 accept tcp to dports 80,443 / NGINX':
+   chain   => 'INPUT',
+   state   => 'NEW',
+   proto   => 'tcp',
+   dport   => ['80', '443'],
+   action  => 'accept',
+}
 
-#firewall { '120 accept tcp to dports 80,443 / NGINX /v6':
-#    chain   => 'INPUT',
-#    state   => 'NEW',
-#    proto   => 'tcp',
-#    dport   => ['80', '443'],
-#    action  => 'accept',
-#    provider => 'ip6tables',
-#}
+firewall { '120 accept tcp to dports 80,443 / NGINX /v6':
+   chain   => 'INPUT',
+   state   => 'NEW',
+   proto   => 'tcp',
+   dport   => ['80', '443'],
+   action  => 'accept',
+   provider => 'ip6tables',
+}
 
 exec { "create custom dh params":
     command => "openssl dhparam -out /etc/pki/tls/dhparams.pem 2048",
