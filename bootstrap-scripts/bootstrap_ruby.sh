@@ -2,29 +2,30 @@
 
 yum clean all -q
 
-yum install which virt-what yum-utils epel-release deltarpm -y -q
+yum install which virt-what yum-utils -y -q
 
 #for vagrant/facter
 yum install bind-utils net-tools -y -q
 
 yum update -y -q
 
-# Install dependencies for RVM and Ruby...
-#if which yum &>/dev/null; then
-yum -q -y install gcc-c++ patch readline-devel zlib-devel libxml2-devel libyaml-devel libxslt-devel libffi-devel openssl-devel make bzip2 autoconf automake libtool bison git augeas-devel
-#  # patch, libyaml-devel, glibc-headers, autoconf, gcc-c++, glibc-devel, patch, readline-devel, zlib-devel, libffi-devel, openssl-devel, automake, libtool, bison, sqlite-devel
-#else
-#  echo "ERROR: devel packages instalation failed";
-#fi
+dnf module -y reset ruby
+dnf module -y enable ruby:2.6
+dnf module -y install ruby:2.6
 
-yum install -q -y yum install centos-release-scl
+yum -q -y install gcc gcc-c++ patch readline-devel zlib-devel libxml2-devel libyaml-devel libxslt-devel libffi-devel openssl-devel make bzip2 autoconf automake libtool bison git
 
-yum install rh-ruby26 rh-ruby26-ruby-devel -y -q
+yum install make ruby-devel redhat-rpm-config -y -q
 
-#mkdir -p /usr/local/share/gems && mkdir -p /usr/local/rvm/gems && ln -s /usr/local/share/gems /usr/local/rvm/gems/ruby-2.4.3
+dnf install --enablerepo=PowerTools augeas augeas-devel -y -q
 
-echo 'source /opt/rh/rh-ruby26/enable' >> /root/.bashrc
+yum install -y -q epel-release
 
-echo '' >> /root/.bashrc;
-echo 'unset GEM_HOME' >> /root/.bashrc;
-echo 'unset GEM_PATH' >> /root/.bashrc;
+#echo 'source /opt/rh/rh-ruby27/enable' >> /root/.bashrc
+
+echo 'export PATH="$PATH:/usr/local/bin"' >> /etc/profile.d/ruby-env.sh
+
+#
+#echo '' >> /root/.bashrc;
+#echo 'unset GEM_HOME' >> /root/.bashrc;
+#echo 'unset GEM_PATH' >> /root/.bashrc;

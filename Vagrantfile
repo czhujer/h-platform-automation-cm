@@ -23,7 +23,7 @@ Vagrant.configure('2') do |config|
       end
 
       if name == "hpa-hq1"
-          host.vm.box = "centos/7"
+          host.vm.box = "centos/8"
       elsif name == "hpa-pxm1"
           host.vm.box = "debian/stretch64"
 
@@ -77,7 +77,7 @@ Vagrant.configure('2') do |config|
 
         host.vm.provision :shell, :inline => "echo 'starting r10k install .. and puppet apply...'"
 
-        host.vm.provision :shell, :inline => "cd /vagrant && cp r10k-puppetfiles/Puppetfile-jenkins-server /etc/puppet/Puppetfile", :privileged => true
+        host.vm.provision :shell, :inline => "cd /vagrant && cp configs-servers/hpa-hq1/Puppetfile /etc/puppet/Puppetfile", :privileged => true
         host.vm.provision :shell, :inline => "source /opt/rh/rh-ruby26/enable; cd /etc/puppet && r10k puppetfile install --force --puppetfile /etc/puppet/Puppetfile", :privileged => true
 
         #host.vm.provision :shell, :inline => "source /opt/rh/rh-ruby26/enable; facter", :privileged => true
