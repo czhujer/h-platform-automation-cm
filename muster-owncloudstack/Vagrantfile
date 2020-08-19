@@ -56,7 +56,7 @@ Vagrant.configure('2') do |config|
   #
   # run r10k and puppet apply
   #
-  config.vm.provision "copy-r10k-files", type: "shell", :inline => "cd /vagrant && cp r10k-puppetfiles/Puppetfile-owncloudstack /etc/puppet/Puppetfile", :privileged => true
+  config.vm.provision "copy-r10k-files", type: "shell", :inline => "cd /vagrant && cp r10k-puppetfiles/owncloudstack/Puppetfile /etc/puppet/Puppetfile", :privileged => true
   config.vm.provision "run-r10k", type: "shell", :inline => "source /opt/rh/rh-ruby25/enable; cd /etc/puppet && r10k puppetfile install --force --puppetfile /etc/puppet/Puppetfile", :privileged => true
 
   #config.vm.provision :shell, :inline => "source /opt/rh/rh-ruby25/enable; facter", :privileged => true

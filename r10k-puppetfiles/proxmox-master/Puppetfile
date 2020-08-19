@@ -13,30 +13,14 @@ mod 'puppetlabs-apt', '7.2.0'
 
 mod 'puppetlabs-firewall', '2.1.0'
 
-#mod 'puppetlabs-mysql', '3.10.0'
-
 mod 'puppetlabs-pe_gem', '0.2.0'
-
-#mod 'puppetlabs-postgresql', '5.12.1'
 
 mod 'puppetlabs-ruby', '1.0.1'
 
-#mod 'puppet-staging', '2.1.0'
-
-#mod 'puppetlabs-apache', '3.4.0'
-
 mod 'saz-timezone', '5.1.1'
-
-#mod 'puppetlabs-ntp', '4.2.0'
 
 # 'saz-timezone' (v5.1.1) requires 'stm-debconf' (>= 2.0.0 < 3.0.0)
 mod 'stm-debconf', '2.3.0'
-
-#mod 'zabbixagent',
-# :git => 'https://github.com/H-Software/puppet-zabbixagent',
-# :tag => 'v3.5.3'
-
-#mod 'puppet-zabbix', '6.5.0'
 
 mod 'puppetlabs-java', '4.1.0'
 
@@ -44,16 +28,12 @@ mod 'puppet-archive', '4.4.0'
 
 mod 'puppet-zypprepo', '2.2.2'
 
-#mod 'duritong-sysctl', '0.0.11'
-
-#mod 'stahnma-epel', '1.2.2'
-
 #mod 'beats',
-#  :git => 'https://github.com/SugarFactory/puppet-beats.git',
+#  :git => 'https://github.com/H-Software/puppet-beats.git',
 #  :branch => 'devel'
 #  :tag => '0.10.2'
 
-mod 'puppet-jenkins', '2.0.0'
+# mod 'puppet-jenkins', '2.0.0'
 
 mod 'puppetlabs-transition', '0.1.1'
 
@@ -61,12 +41,11 @@ mod 'puppetlabs-vcsrepo', '3.0.0'
 
 mod 'puppet-nginx', '0.14.0'
 
-mod 'puppet-selinux', '3.0.0'
+# mod 'puppet-selinux', '3.0.0'
 
-#mod 'prometheus',
-#  :git => 'https://github.com/SugarFactory/puppet-prometheus',
-#  :tag => 'v5.4.0'
 mod 'puppet-prometheus', '7.1.0'
 
 # 'puppetlabs-concat' (v5.3.0) requires 'puppetlabs-translate' (>= 1.0.0 < 2.0.0)
 mod 'puppetlabs-translate', '1.2.0'
+
+mod 'hfm-unicorn_systemd', '2.2.0'
