@@ -1,0 +1,41 @@
+#
+# puppetfile for r10k
+#
+
+# https://github.com/puppetlabs/r10k/blob/master/r10k.yaml.example
+
+#moduledir '/etc/puppet/modules'
+
+mod 'puppetlabs-firewall', '2.5.0'
+
+mod 'puppetlabs-concat', '5.3.0'
+
+mod 'puppetlabs-stdlib', '5.2.0'
+
+mod 'puppetlabs-inifile', '3.1.0'
+
+mod 'puppet-archive', '4.4.0'
+
+# mod 'puppetlabs-java', '5.0.1'
+
+mod 'camptocamp-systemd', '2.9.0'
+
+mod 'puppetlabs-translate', '1.2.0'
+
+mod 'puppet-prometheus', '7.1.0'
+
+mod 'puppet-selinux', '3.0.0'
+
+mod 'puppetlabs-vcsrepo', '3.0.0'
+
+mod 'puppet-nginx', '1.1.0'
+
+mod 'puppetlabs-docker', '3.11.0'
+
+mod 'puppetlabs-reboot', '2.4.0'
+
+mod 'puppetlabs-apt', '7.5.0'
+
+mod 'puppetlabs-powershell', '3.0.1'
+
+mod 'puppetlabs-pwshlib', '0.4.1'
