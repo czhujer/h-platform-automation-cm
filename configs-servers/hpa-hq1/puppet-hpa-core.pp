@@ -12,11 +12,16 @@ vcsrepo { '/root/h-platform-automation-cc-server':
   ensure   => latest,
   provider => git,
   source   => 'https://github.com/czhujer/h-platform-automation-cc-server.git',
-  revision => 'master',
+  #revision => 'master',
+  tag      => 'v0.2',
   require  => Package['git'],
 }
 
 file { '/root/scripts':
+  ensure => 'directory',
+}
+
+file { '/root/docker-compose/c-and-c-server':
   ensure => 'directory',
 }
 

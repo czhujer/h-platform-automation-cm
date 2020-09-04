@@ -1,0 +1,16 @@
+version: '3.7'
+services:
+
+  server:
+    build:
+      context: /root/h-platform-automation-cc-server
+    image: hpa-cc-server:v0.3
+    restart: always
+    ports:
+      - 8080:8080
+    environment:
+      - JAEGER_AGENT_HOST=172.17.0.1
+    volumes:
+      - /root/.ssh/id_rsa:/root/.ssh/id_rsa
+      - /root/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub
+

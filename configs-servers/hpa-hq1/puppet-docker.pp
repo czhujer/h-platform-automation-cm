@@ -35,3 +35,8 @@ class { 'docker':
   use_upstream_package_source => false,
   docker_ce_package_name      => 'docker-ce',
 }
+
+class {'docker::compose':
+  ensure => present,
+  version => '1.26.2',
+}

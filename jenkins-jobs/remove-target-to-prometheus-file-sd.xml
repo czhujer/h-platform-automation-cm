@@ -1,0 +1,217 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.security.AuthorizationMatrixProperty>
+      <inheritanceStrategy class="org.jenkinsci.plugins.matrixauth.inheritance.NonInheritingStrategy"/>
+      <permission>com.cloudbees.plugins.credentials.CredentialsProvider.Create:admin</permission>
+      <permission>com.cloudbees.plugins.credentials.CredentialsProvider.Delete:admin</permission>
+      <permission>com.cloudbees.plugins.credentials.CredentialsProvider.ManageDomains:admin</permission>
+      <permission>com.cloudbees.plugins.credentials.CredentialsProvider.Update:admin</permission>
+      <permission>com.cloudbees.plugins.credentials.CredentialsProvider.View:admin</permission>
+      <permission>hudson.model.Item.Build:admin</permission>
+      <permission>hudson.model.Item.Build:sduser</permission>
+      <permission>hudson.model.Item.Build:slave-ocb2c-pxm1</permission>
+      <permission>hudson.model.Item.Cancel:admin</permission>
+      <permission>hudson.model.Item.Cancel:slave-ocb2c-pxm1</permission>
+      <permission>hudson.model.Item.Configure:admin</permission>
+      <permission>hudson.model.Item.Delete:admin</permission>
+      <permission>hudson.model.Item.Discover:admin</permission>
+      <permission>hudson.model.Item.Move:admin</permission>
+      <permission>hudson.model.Item.Read:admin</permission>
+      <permission>hudson.model.Item.Read:sduser</permission>
+      <permission>hudson.model.Item.Read:slave-ocb2c-pxm1</permission>
+      <permission>hudson.model.Item.Workspace:admin</permission>
+      <permission>hudson.model.Item.Workspace:slave-ocb2c-pxm1</permission>
+      <permission>hudson.model.Run.Delete:admin</permission>
+      <permission>hudson.model.Run.Replay:admin</permission>
+      <permission>hudson.model.Run.Update:admin</permission>
+      <permission>hudson.scm.SCM.Tag:admin</permission>
+    </hudson.security.AuthorizationMatrixProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition plugin="nodelabelparameter@1.7.2">
+          <name>master_server_master</name>
+          <description></description>
+          <defaultValue>master</defaultValue>
+          <allNodesMatchingLabel>false</allNodesMatchingLabel>
+          <triggerIfResult>allCases</triggerIfResult>
+          <nodeEligibility class="org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility"/>
+        </org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>prom_type</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>prom-file-sd-node-ocb2c-remove</string>
+              <string>prom-file-sd-node-ocb2c-remove+prom-file-sd-mysql-ocb2c-remove</string>
+              <string>prom-file-sd-node-ocb2c-remove+prom-file-sd-mysql-ocb2c-remove+prom-file-sd-apache-ocb2c-remove+prom-file-sd-redis-ocb2c-remove</string>
+              <string>prom-file-sd-node-ocb2c-remove+prom-file-sd-mysql-ocb2c-remove+prom-file-sd-apache-ocb2c-remove+prom-file-sd-redis-ocb2c-remove+prom-file-sd-php-fpm-ocb2c-remove</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>container_id</name>
+          <description></description>
+          <defaultValue></defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+
+# muster command
+# ssh -i /var/lib/jenkins/.ssh/id_rsa alg-remote-executor@172.16.2.133 &quot;prom-file-sd-node-ocb2c oc-210&quot;
+
+vmname=&quot;oc-&quot;${container_id}
+
+echo &quot;vmname: ${vmname}&quot;;
+echo &quot;prom_type: ${prom_type}&quot;;
+#echo -n &quot;id &quot;;
+#id;
+global_exit_code=0
+
+if [ &quot;${container_id}&quot; == &quot;&quot; ]; then
+  echo -e &quot;ERROR: missing input var \&quot;container_id\&quot;! \nExiting..\n&quot;;
+  exit 11;
+fi;
+
+if [[ ${prom_type} =~ ^.*prom-file-sd-node-ocb2c-remove.* ]]; then
+
+
+  echo &quot;&quot;;
+  echo &quot;call ssh command for remove node target file...&quot;;
+  echo &quot;&quot;;
+  
+  rssh_rs=$(timeout 10 ssh -i /var/lib/jenkins/.ssh/id_rsa alg-remote-executor@172.16.2.133 &quot;prom-file-sd-node-ocb2c-remove ${vmname}&quot;)
+  rssh_rs_rv=$?
+  
+  #echo $rssh_rs_rv;
+  
+  if [ $rssh_rs_rv -eq 0 ]; then
+    echo &quot;INFO: ssh command for remove node target successfully called&quot;;
+    echo &quot;&quot;;
+  else
+    echo &quot;ERROR: ssh command for remove node target failed! (return value: ${rssh_rs_rv})&quot;;
+    echo &quot;result: &quot;;
+    echo &quot;${rssh_rs}&quot;;
+    echo &quot;&quot;;
+    global_exit_code=20;
+  fi;
+fi;
+
+if [[ ${prom_type} =~ ^.*prom-file-sd-mysql-ocb2c-remove.* ]]; then
+
+
+  echo &quot;&quot;;
+  echo &quot;call ssh command for remove mysql target file...&quot;;
+  echo &quot;&quot;;
+  
+  rssh_rs=$(timeout 10 ssh -i /var/lib/jenkins/.ssh/id_rsa alg-remote-executor@172.16.2.133 &quot;prom-file-sd-mysql-ocb2c-remove ${vmname}&quot;)
+  rssh_rs_rv=$?
+  
+  #echo $rssh_rs_rv;
+  
+  if [ $rssh_rs_rv -eq 0 ]; then
+    echo &quot;INFO: ssh command for remove mysql target successfully called&quot;;
+    echo &quot;&quot;;
+  else
+    echo &quot;ERROR: ssh command for remove mysql target failed! (return value: ${rssh_rs_rv})&quot;;
+    echo &quot;result: &quot;;
+    echo &quot;${rssh_rs}&quot;;
+    echo &quot;&quot;;
+    global_exit_code=20;
+  fi;
+fi;
+
+if [[ ${prom_type} =~ ^.*prom-file-sd-apache-ocb2c-remove.* ]]; then
+
+
+  echo &quot;&quot;;
+  echo &quot;call ssh command for remove apache target file...&quot;;
+  echo &quot;&quot;;
+  
+  rssh_rs=$(timeout 10 ssh -i /var/lib/jenkins/.ssh/id_rsa alg-remote-executor@172.16.2.133 &quot;prom-file-sd-apache-ocb2c-remove ${vmname}&quot;)
+  rssh_rs_rv=$?
+  
+  #echo $rssh_rs_rv;
+  
+  if [ $rssh_rs_rv -eq 0 ]; then
+    echo &quot;INFO: ssh command for remove apache target successfully called&quot;;
+    echo &quot;&quot;;
+  else
+    echo &quot;ERROR: ssh command for remove apache target failed! (return value: ${rssh_rs_rv})&quot;;
+    echo &quot;result: &quot;;
+    echo &quot;${rssh_rs}&quot;;
+    echo &quot;&quot;;
+    global_exit_code=20;
+  fi;
+fi;
+
+if [[ ${prom_type} =~ ^.*prom-file-sd-redis-ocb2c-remove.* ]]; then
+
+
+  echo &quot;&quot;;
+  echo &quot;call ssh command for remove redis target file...&quot;;
+  echo &quot;&quot;;
+  
+  rssh_rs=$(timeout 10 ssh -i /var/lib/jenkins/.ssh/id_rsa alg-remote-executor@172.16.2.133 &quot;prom-file-sd-redis-ocb2c-remove ${vmname}&quot;)
+  rssh_rs_rv=$?
+  
+  #echo $rssh_rs_rv;
+  
+  if [ $rssh_rs_rv -eq 0 ]; then
+    echo &quot;INFO: ssh command for remove redis target successfully called&quot;;
+    echo &quot;&quot;;
+  else
+    echo &quot;ERROR: ssh command for remove redis target failed! (return value: ${rssh_rs_rv})&quot;;
+    echo &quot;result: &quot;;
+    echo &quot;${rssh_rs}&quot;;
+    echo &quot;&quot;;
+    global_exit_code=20;
+  fi;
+fi;
+
+if [[ ${prom_type} =~ ^.*prom-file-sd-php-fpm-ocb2c-remove.* ]]; then
+
+
+  echo &quot;&quot;;
+  echo &quot;call ssh command for remove php-fpm target file...&quot;;
+  echo &quot;&quot;;
+  
+  rssh_rs=$(timeout 10 ssh -i /var/lib/jenkins/.ssh/id_rsa alg-remote-executor@172.16.2.133 &quot;prom-file-sd-php-fpm-ocb2c-remove ${vmname}&quot;)
+  rssh_rs_rv=$?
+  
+  #echo $rssh_rs_rv;
+  
+  if [ $rssh_rs_rv -eq 0 ]; then
+    echo &quot;INFO: ssh command for remove php-fpm target successfully called&quot;;
+    echo &quot;&quot;;
+  else
+    echo &quot;ERROR: ssh command for remove php-fpm target failed! (return value: ${rssh_rs_rv})&quot;;
+    echo &quot;result: &quot;;
+    echo &quot;${rssh_rs}&quot;;
+    echo &quot;&quot;;
+    global_exit_code=20;
+  fi;
+fi;
+
+exit $global_exit_code;
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

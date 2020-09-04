@@ -1,0 +1,206 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.security.AuthorizationMatrixProperty>
+      <inheritanceStrategy class="org.jenkinsci.plugins.matrixauth.inheritance.NonInheritingStrategy"/>
+      <permission>com.cloudbees.plugins.credentials.CredentialsProvider.Create:admin</permission>
+      <permission>com.cloudbees.plugins.credentials.CredentialsProvider.Delete:admin</permission>
+      <permission>com.cloudbees.plugins.credentials.CredentialsProvider.ManageDomains:admin</permission>
+      <permission>com.cloudbees.plugins.credentials.CredentialsProvider.Update:admin</permission>
+      <permission>com.cloudbees.plugins.credentials.CredentialsProvider.View:admin</permission>
+      <permission>hudson.model.Item.Build:admin</permission>
+      <permission>hudson.model.Item.Build:sduser</permission>
+      <permission>hudson.model.Item.Build:slave-ocb2c-pxm1</permission>
+      <permission>hudson.model.Item.Cancel:admin</permission>
+      <permission>hudson.model.Item.Cancel:slave-ocb2c-pxm1</permission>
+      <permission>hudson.model.Item.Configure:admin</permission>
+      <permission>hudson.model.Item.Delete:admin</permission>
+      <permission>hudson.model.Item.Discover:admin</permission>
+      <permission>hudson.model.Item.Move:admin</permission>
+      <permission>hudson.model.Item.Read:admin</permission>
+      <permission>hudson.model.Item.Read:sduser</permission>
+      <permission>hudson.model.Item.Read:slave-ocb2c-pxm1</permission>
+      <permission>hudson.model.Item.Workspace:admin</permission>
+      <permission>hudson.model.Item.Workspace:slave-ocb2c-pxm1</permission>
+      <permission>hudson.model.Run.Delete:admin</permission>
+      <permission>hudson.model.Run.Replay:admin</permission>
+      <permission>hudson.model.Run.Update:admin</permission>
+      <permission>hudson.scm.SCM.Tag:admin</permission>
+    </hudson.security.AuthorizationMatrixProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>prom_type</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>prom-file-sd-node-ocb2c</string>
+              <string>prom-file-sd-node-ocb2c+prom-file-sd-mysql-ocb2c</string>
+              <string>prom-file-sd-node-ocb2c+prom-file-sd-mysql-ocb2c+prom-file-sd-apache-ocb2c+prom-file-sd-redis-ocb2c+prom-file-sd-php-fpm-ocb2c</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>master</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.42">
+      <project>create-owncloud-virtual-machine</project>
+      <filter>export_props.properties</filter>
+      <target></target>
+      <excludes></excludes>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+      <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+
+# muster command
+# ssh -i /var/lib/jenkins/.ssh/id_rsa alg-remote-executor@172.16.2.133 &quot;prom-file-sd-node-ocb2c oc-210&quot;
+
+source export_props.properties;
+echo &quot;sourced vmname: ${vmname}&quot;;
+echo &quot;sourced domain: ${domain}&quot;;
+echo &quot;prom_type: ${prom_type}&quot;;
+
+vmname_full=${vmname}.${domain};
+echo -e &quot;\nvmname_full: ${vmname_full}\n&quot;;
+#echo -n &quot;id &quot;;
+#id;
+
+if [[ ${prom_type} =~ ^.*prom-file-sd-node-ocb2c.* ]]; then
+
+
+  echo &quot;&quot;;
+  echo &quot;call ssh command for create node target file...&quot;;
+  echo &quot;&quot;;
+  
+  rssh_rs=$(timeout 10 ssh -i /var/lib/jenkins/.ssh/id_rsa alg-remote-executor@172.16.2.133 &quot;prom-file-sd-node-ocb2c ${vmname_full}&quot;)
+  rssh_rs_rv=$?
+  
+  #echo $rssh_rs_rv;
+  
+  if [ $rssh_rs_rv -eq 0 ]; then
+    echo &quot;INFO: ssh command for node successfully called&quot;;
+    echo &quot;&quot;;
+  else
+    echo &quot;ERROR: ssh command for node failed! (return value: ${rssh_rs_rv})&quot;;
+    echo &quot;result: &quot;;
+    echo &quot;${rssh_rs}&quot;;
+    echo &quot;&quot;;
+    exit 20;
+  fi;
+fi;
+
+if [[ ${prom_type} =~ ^.*prom-file-sd-mysql-ocb2c.* ]]; then
+
+
+  echo &quot;&quot;;
+  echo &quot;call ssh command for create mysql target file...&quot;;
+  echo &quot;&quot;;
+  
+  rssh_rs=$(timeout 10 ssh -i /var/lib/jenkins/.ssh/id_rsa alg-remote-executor@172.16.2.133 &quot;prom-file-sd-mysql-ocb2c ${vmname_full}&quot;)
+  rssh_rs_rv=$?
+  
+  #echo $rssh_rs_rv;
+  
+  if [ $rssh_rs_rv -eq 0 ]; then
+    echo &quot;INFO: ssh command for mysql successfully called&quot;;
+    echo &quot;&quot;;
+  else
+    echo &quot;ERROR: ssh command for mysql failed! (return value: ${rssh_rs_rv})&quot;;
+    echo &quot;result: &quot;;
+    echo &quot;${rssh_rs}&quot;;
+    echo &quot;&quot;;
+    exit 20;
+  fi;
+fi;
+
+if [[ ${prom_type} =~ ^.*prom-file-sd-apache-ocb2c.* ]]; then
+
+
+  echo &quot;&quot;;
+  echo &quot;call ssh command for create apache target file...&quot;;
+  echo &quot;&quot;;
+  
+  rssh_rs=$(timeout 10 ssh -i /var/lib/jenkins/.ssh/id_rsa alg-remote-executor@172.16.2.133 &quot;prom-file-sd-apache-ocb2c ${vmname_full}&quot;)
+  rssh_rs_rv=$?
+  
+  #echo $rssh_rs_rv;
+  
+  if [ $rssh_rs_rv -eq 0 ]; then
+    echo &quot;INFO: ssh command for apache successfully called&quot;;
+    echo &quot;&quot;;
+  else
+    echo &quot;ERROR: ssh command for apache failed! (return value: ${rssh_rs_rv})&quot;;
+    echo &quot;result: &quot;;
+    echo &quot;${rssh_rs}&quot;;
+    echo &quot;&quot;;
+    exit 20;
+  fi;
+fi;
+
+if [[ ${prom_type} =~ ^.*prom-file-sd-redis-ocb2c.* ]]; then
+
+
+  echo &quot;&quot;;
+  echo &quot;call ssh command for create redis target file...&quot;;
+  echo &quot;&quot;;
+  
+  rssh_rs=$(timeout 10 ssh -i /var/lib/jenkins/.ssh/id_rsa alg-remote-executor@172.16.2.133 &quot;prom-file-sd-redis-ocb2c ${vmname_full}&quot;)
+  rssh_rs_rv=$?
+  
+  #echo $rssh_rs_rv;
+  
+  if [ $rssh_rs_rv -eq 0 ]; then
+    echo &quot;INFO: ssh command for redis successfully called&quot;;
+    echo &quot;&quot;;
+  else
+    echo &quot;ERROR: ssh command for redis failed! (return value: ${rssh_rs_rv})&quot;;
+    echo &quot;result: &quot;;
+    echo &quot;${rssh_rs}&quot;;
+    echo &quot;&quot;;
+    exit 20;
+  fi;
+fi;
+
+if [[ ${prom_type} =~ ^.*prom-file-sd-php-fpm-ocb2c.* ]]; then
+
+
+  echo &quot;&quot;;
+  echo &quot;call ssh command for create php-fpm target file...&quot;;
+  echo &quot;&quot;;
+  
+  rssh_rs=$(timeout 10 ssh -i /var/lib/jenkins/.ssh/id_rsa alg-remote-executor@172.16.2.133 &quot;prom-file-sd-php-fpm-ocb2c ${vmname_full}&quot;)
+  rssh_rs_rv=$?
+  
+  #echo $rssh_rs_rv;
+  
+  if [ $rssh_rs_rv -eq 0 ]; then
+    echo &quot;INFO: ssh command for php-fpm successfully called&quot;;
+    echo &quot;&quot;;
+  else
+    echo &quot;ERROR: ssh command for php-fpm failed! (return value: ${rssh_rs_rv})&quot;;
+    echo &quot;result: &quot;;
+    echo &quot;${rssh_rs}&quot;;
+    echo &quot;&quot;;
+    exit 20;
+  fi;
+fi;
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
