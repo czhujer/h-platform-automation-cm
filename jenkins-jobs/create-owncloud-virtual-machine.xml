@@ -1,0 +1,168 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.security.AuthorizationMatrixProperty>
+      <inheritanceStrategy class="org.jenkinsci.plugins.matrixauth.inheritance.NonInheritingStrategy"/>
+      <permission>com.cloudbees.plugins.credentials.CredentialsProvider.Create:admin</permission>
+      <permission>com.cloudbees.plugins.credentials.CredentialsProvider.Delete:admin</permission>
+      <permission>com.cloudbees.plugins.credentials.CredentialsProvider.ManageDomains:admin</permission>
+      <permission>com.cloudbees.plugins.credentials.CredentialsProvider.Update:admin</permission>
+      <permission>com.cloudbees.plugins.credentials.CredentialsProvider.View:admin</permission>
+      <permission>hudson.model.Item.Build:admin</permission>
+      <permission>hudson.model.Item.Build:sduser</permission>
+      <permission>hudson.model.Item.Build:slave-hpa-pxm1</permission>
+      <permission>hudson.model.Item.Cancel:admin</permission>
+      <permission>hudson.model.Item.Cancel:slave-hpa-pxm1</permission>
+      <permission>hudson.model.Item.Configure:admin</permission>
+      <permission>hudson.model.Item.Delete:admin</permission>
+      <permission>hudson.model.Item.Discover:admin</permission>
+      <permission>hudson.model.Item.Move:admin</permission>
+      <permission>hudson.model.Item.Read:admin</permission>
+      <permission>hudson.model.Item.Read:sduser</permission>
+      <permission>hudson.model.Item.Read:slave-hpa-pxm1</permission>
+      <permission>hudson.model.Item.Workspace:admin</permission>
+      <permission>hudson.model.Item.Workspace:slave-hpa-pxm1</permission>
+      <permission>hudson.model.Run.Delete:admin</permission>
+      <permission>hudson.model.Run.Replay:admin</permission>
+      <permission>hudson.model.Run.Update:admin</permission>
+      <permission>hudson.scm.SCM.Tag:admin</permission>
+    </hudson.security.AuthorizationMatrixProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>datastore_size</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>10</string>
+              <string>50</string>
+              <string>100</string>
+              <string>300</string>
+              <string>500</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>order_id/ticket_id</name>
+          <description></description>
+          <defaultValue></defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>domain</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>hcloud.cz</string>
+              <string>cust.hcloud.cz</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>master</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+set -eo pipefail
+
+start=`date +%s`
+echo &quot;----------------------------------------&quot;
+echo &quot;generate ID, name and IP address...&quot;
+echo &quot;----------------------------------------&quot;
+
+count=`sudo find /root/repos/h-platform-automation-cm-tf-owncloud -name &apos;*.tfvars&apos; ! -name &quot;terraform.tfvars&quot; -type f -print  |sort -h`
+
+if [ &quot;$count&quot; == &quot;&quot; ]; then
+  echo &quot;first file..&quot;
+  vmid=&apos;301&apos;
+  vmname=&apos;oc-301&apos;
+  vmip=&apos;10.210.65.101&apos;
+else
+  echo &quot;file(s) found..&quot;;
+  last=`sudo find /root/repos/h-platform-automation-cm-tf-owncloud -name &apos;*.tfvars&apos; ! -name &quot;terraform.tfvars&quot; -type f -print 2&gt;/dev/null |sort -h | tail -1 |grep -o &apos;[0-9][0-9][0-9]&apos;`
+  echo &quot;last id: ${last}&quot;;
+  vmid=$((last + 1))
+  vmname=&quot;oc-&quot;${vmid}
+  vmip_4th=$((vmid - 200))
+  vmip=&quot;10.210.65.&quot;${vmip_4th}
+fi;
+
+if [ ${vmid} -le 300 ]; then
+  echo -e &quot;ERROR: generating ID and IP addresss failed! \nExiting..\n&quot;;
+  echo -e &quot;vmid=\nvmname=\nvmip=\n&quot; &gt; export_props.properties;
+  exit 11;
+else
+  echo -e &quot;\nINFO: generating artifacts..&quot;
+  # save vars into artifact
+  echo -e &quot;vmid=${vmid}\nvmname=oc-${vmid}\nvmip=${vmip}\ndomain=${domain}\n&quot; &gt; export_props.properties || exit 1;
+  # save vars into tf file
+  echo -e &quot;vmname = \&quot;${vmname}\&quot;\nvmip = \&quot;${vmip}\&quot;\nvm_data_disk_size = \&quot;${datastore_size}\&quot;\n&quot; | sudo tee /root/repos/h-platform-automation-cm-tf-owncloud/${vmname}.tfvars || exit 1;
+fi;
+
+end=`date +%s`
+echo -e &quot;\n time: &quot;$((end-start))&quot; seconds&quot;</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+start=`date +%s`
+echo &quot;----------------------------------------&quot;
+echo &quot;create virtual machine and customize it...&quot;
+echo &quot;----------------------------------------&quot;
+
+source export_props.properties;
+
+echo &quot;INFO: sourced artifacts..&quot;
+echo &quot;sourced vmid: ${vmid}&quot;;
+echo &quot;sourced vmname: ${vmname}&quot;;
+echo &quot;sourced vmip: ${vmip}&quot;;
+
+if [ ${vmid} -le 300 ]; then
+  echo -e &quot;ERROR: sourced ID and IP addresss are wrong! \nExiting..\n&quot;;
+  exit 11;
+fi;
+
+echo -e &quot;\nINFO: running terraform plan &amp; apply..&quot;
+
+#sudo /usr/bin/rm /root/repos/h-platform-automation-cm-tf-owncloud/terraform.tfstate -f || exit 1;
+#sudo /usr/bin/rm /root/repos/h-platform-automation-cm-tf-owncloud/terraform.tfstate.backup -f || exit 1;
+
+sudo bash -c &quot;cd /root/repos/h-platform-automation-cm-tf-owncloud &amp;&amp; /root/scripts/terraform plan -no-color -input=false -var-file=\&quot;${vmname}.tfvars\&quot; -state=\&quot;terraform.tfstate.${vmname}\&quot;; exit \$?&quot; || exit 1;
+
+sudo bash -c &quot;cd /root/repos/h-platform-automation-cm-tf-owncloud &amp;&amp; /root/scripts/terraform apply -auto-approve -no-color -input=false -var-file=\&quot;${vmname}.tfvars\&quot; -state=\&quot;terraform.tfstate.${vmname}\&quot;; exit \$?&quot; || exit 1;
+
+#sudo /usr/bin/rm /root/repos/h-platform-automation-cm-tf-owncloud/terraform.tfstate -f || exit 1;
+#sudo /usr/bin/rm /root/repos/h-platform-automation-cm-tf-owncloud/terraform.tfstate.backup -f || exit 1;
+#sudo /usr/bin/mv /root/repos/h-platform-automation-cm-tf-owncloud/terraform.tfstate /root/repos/h-platform-automation-cm-tf-owncloud/terraform.tfstate.${vmname} || exit 1;
+#sudo /usr/bin/mv /root/repos/h-platform-automation-cm-tf-owncloud/terraform.tfstate.backup /root/repos/h-platform-automation-cm-tf-owncloud/terraform.tfstate.backup.${vmname};
+
+#echo &quot;temporary sleeping 300second&quot;
+#sleep 300;
+
+end=`date +%s`
+echo -e &quot;\n time: &quot;$((end-start))&quot; seconds&quot;</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>export_props.properties</artifacts>
+      <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>true</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers/>
+</project>
