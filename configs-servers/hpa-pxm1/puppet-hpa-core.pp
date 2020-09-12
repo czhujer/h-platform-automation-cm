@@ -13,6 +13,10 @@ file { '/root/scripts':
 
 # proxmox-provisioning-server
 #
+
+# //TODO
+# // exec: cd /root/h-platform-automation-core/proxmox-provisioning-server && bundle install
+
 class { 'unicorn_systemd':
   user              => 'root',
   group             => 'root',

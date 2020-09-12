@@ -1,0 +1,26 @@
+version: '3.7'
+services:
+
+  server:
+    image: traefik:v2.3
+    restart: always
+#    command: ["--reporter.grpc.host-port=collector:14250"]
+    ports:
+      - 80:80
+      - 443:443
+
+#    docker run -d \
+#    -v /var/run/docker.sock:/var/run/docker.sock \
+#    -v $PWD/traefik.toml:/traefik.toml \
+#    -v $PWD/acme.json:/acme.json \
+#    -p 80:80 \
+#    -p 443:443 \
+#    -l traefik.frontend.rule=Host:monitor.your_domain \
+#    -l traefik.port=8080 \
+#    --network web \
+#    --name traefik \
+#    traefik:1.7-alpine
+
+volumes:
+  server-data:
+    driver: local

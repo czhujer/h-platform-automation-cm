@@ -1,0 +1,98 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.security.AuthorizationMatrixProperty>
+      <inheritanceStrategy class="org.jenkinsci.plugins.matrixauth.inheritance.NonInheritingStrategy"/>
+      <permission>com.cloudbees.plugins.credentials.CredentialsProvider.Create:admin</permission>
+      <permission>com.cloudbees.plugins.credentials.CredentialsProvider.Delete:admin</permission>
+      <permission>com.cloudbees.plugins.credentials.CredentialsProvider.ManageDomains:admin</permission>
+      <permission>com.cloudbees.plugins.credentials.CredentialsProvider.Update:admin</permission>
+      <permission>com.cloudbees.plugins.credentials.CredentialsProvider.View:admin</permission>
+      <permission>hudson.model.Item.Build:admin</permission>
+      <permission>hudson.model.Item.Build:slave-hpa-pxm1</permission>
+      <permission>hudson.model.Item.Cancel:admin</permission>
+      <permission>hudson.model.Item.Cancel:slave-hpa-pxm1</permission>
+      <permission>hudson.model.Item.Configure:admin</permission>
+      <permission>hudson.model.Item.Delete:admin</permission>
+      <permission>hudson.model.Item.Discover:admin</permission>
+      <permission>hudson.model.Item.Move:admin</permission>
+      <permission>hudson.model.Item.Read:admin</permission>
+      <permission>hudson.model.Item.Read:slave-hpa-pxm1</permission>
+      <permission>hudson.model.Item.Workspace:admin</permission>
+      <permission>hudson.model.Item.Workspace:slave-hpa-pxm1</permission>
+      <permission>hudson.model.Run.Delete:admin</permission>
+      <permission>hudson.model.Run.Replay:admin</permission>
+      <permission>hudson.model.Run.Update:admin</permission>
+      <permission>hudson.scm.SCM.Tag:admin</permission>
+    </hudson.security.AuthorizationMatrixProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition plugin="nodelabelparameter@1.7.2">
+          <name>master_server</name>
+          <description></description>
+          <defaultValue>hpa-pxm1</defaultValue>
+          <allNodesMatchingLabel>false</allNodesMatchingLabel>
+          <triggerIfResult>allCases</triggerIfResult>
+          <nodeEligibility class="org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility"/>
+        </org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>datastore_size</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>10</string>
+              <string>50</string>
+              <string>100</string>
+              <string>300</string>
+              <string>500</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>order_id</name>
+          <description></description>
+          <defaultValue></defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+start=`date +%s`
+echo &quot;----------------------------------------&quot;
+echo &quot;create container and set up...&quot;
+echo &quot;----------------------------------------&quot;
+
+#sudo -E /usr/local/rvm/rubies/default/bin/ruby /root/scripts/pxm-create-container.rb
+sudo bash -E -c &quot;source /etc/profile.d/rvm.sh; ruby /root/scripts/pxm-create-container.rb --disk $datastore_size; exit \$?&quot; || exit 1;
+
+sleep 5
+
+end=`date +%s`
+echo -e &quot;\n time: &quot;$((end-start))&quot; seconds&quot;</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>export_props.properties</artifacts>
+      <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>true</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers/>
+</project>
