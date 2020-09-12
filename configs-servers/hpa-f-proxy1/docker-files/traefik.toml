@@ -1,0 +1,16 @@
+[entryPoints]
+#  [entryPoints.dashboard]
+#    address = ":8080"
+  [entryPoints.http]
+    address = ":80"
+#      [entryPoints.http.redirect]
+#        entryPoint = "https"
+#  [entryPoints.https]
+#    address = ":443"
+#      [entryPoints.https.tls]
+
+[api]
+  dashboard = true
+  insecure = true
+
+

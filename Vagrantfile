@@ -91,7 +91,7 @@ SCRIPT3
 
         host.vm.provision "compose-files",
           type: "shell",
-          :inline => "mkdir -p /etc/docker/compose/traefik-stack && cp /vagrant/configs-servers/hpa-f-proxy1/docker-files/traefik-stack.yaml /etc/docker/compose/traefik-stack/docker-compose.yaml",
+          :inline => 'wd=/etc/docker/compose/traefik-stack; va=/vagrant/configs-servers/hpa-f-proxy1/docker-files; mkdir -p $wd && cp $va/traefik-stack.yaml $wd/docker-compose.yaml && cp $va/*.toml $wd/',
           :privileged => true
 
         host.vm.provision "compose-exec",
@@ -103,11 +103,6 @@ SCRIPT3
 
         # Expose http/s port
 #        host.vm.network "forwarded_port", guest: 8080, host: 8081, auto_correct: true
-#
-#        host.vm.provider :libvirt do |v|
-#          v.memory = 2048
-#          v.cpus = 2
-#        end
 
       end
     end
