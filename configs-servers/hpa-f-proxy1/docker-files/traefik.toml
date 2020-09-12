@@ -21,4 +21,5 @@
   dashboard = true
   insecure = true
 
-
+[metrics]
+  [metrics.prometheus]
