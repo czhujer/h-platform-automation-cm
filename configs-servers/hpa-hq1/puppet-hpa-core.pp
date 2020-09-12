@@ -27,7 +27,7 @@ file { '/root/docker-compose/c-and-c-server':
 
 # terraform - owncloudstack
 #
-$terraform_install_dir = ['/opt', '/opt/terraform_0.13.2']
+$terraform_install_dir = ['/opt', '/opt/terraform_0.13.2', '/opt/terraform_0.12.29']
 
 file { $terraform_install_dir:
   ensure => directory,
@@ -42,6 +42,18 @@ archive { 'terraform_0.13.2_linux_amd64.zip':
   extract       => true,
   extract_path  => '/opt/terraform_0.13.2/',
   creates       => '/opt/terraform_0.13.2/terraform',
+  cleanup       => true,
+  user          => 'root',
+  group         => 'root',
+  require       => File[$terraform_install_dir],
+}
+
+archive { 'terraform_0.12.29_linux_amd64.zip':
+  path          => '/tmp/terraform_0.12.29_linux_amd64.zip',
+  source        => 'https://releases.hashicorp.com/terraform/0.12.29/terraform_0.12.29_linux_amd64.zip',
+  extract       => true,
+  extract_path  => '/opt/terraform_0.12.29/',
+  creates       => '/opt/terraform_0.12.29/terraform',
   cleanup       => true,
   user          => 'root',
   group         => 'root',
