@@ -1,0 +1,25 @@
+[entryPoints]
+  [entryPoints.web]
+    address = ":80"
+    [entryPoints.web.http]
+      [entryPoints.web.http.redirections]
+        [entryPoints.web.http.redirections.entryPoint]
+          to = "websecure"
+          scheme = "https"
+  [entryPoints.websecure]
+    address = ":443"
+    [entryPoints.websecure.http.tls]
+      options = "foobar"
+
+[tls.stores]
+  [tls.stores.default]
+    [tls.stores.default.defaultCertificate]
+      certFile = "/etc/ssl/certs/localhost.crt"
+      keyFile  = "/etc/ssl/private/locahost.key"
+
+[api]
+  dashboard = true
+  insecure = true
+
+[metrics]
+  [metrics.prometheus]
