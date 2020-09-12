@@ -8,13 +8,19 @@
 
 Vagrant.require_version ">= 2.0.0"
 
-servers = {"vagrant" => {"hpa-hq1" => "vm", "hpa-pxm1" => "vm"}}
+servers = {
+    "vagrant" => {
+            "hpa-hq1" => "vm",
+            "hpa-pxm1" => "vm",
+            "hpa-f-proxy1" => "vm"
+    }
+}
 
 Vagrant.configure('2') do |config|
 
   servers['vagrant'].each do |name, server_config|
     dir = File.expand_path("..", __FILE__)
-    puts "DIR_cm: #{dir}"
+#    puts "DIR_cm: #{dir}"
 
     config.vm.define name do |host|
       host.vm.provider :libvirt do |v|
@@ -31,9 +37,16 @@ Vagrant.configure('2') do |config|
           host.vm.network "forwarded_port", guest: 80, host: 8180, auto_correct: true
           host.vm.network "forwarded_port", guest: 443, host: 8143, auto_correct: true
           host.vm.network "forwarded_port", guest: 8006, host: 8106, auto_correct: true
+      elsif name == "hpa-f-proxy1"
+          host.vm.box = "generic/ubuntu2004"
+
+          host.vm.provider :libvirt do |v|
+            v.memory = 512
+            v.cpus = 2
+          end
       end
 
-      if name == "hpa-pxm1"
+      if name == "hpa-pxm1" # or name == "hpa-f-proxy1"
         host.vm.provision :shell, :inline => "apt-get update && apt-get install -y sshfs", :privileged => true
       end
 
@@ -43,19 +56,59 @@ Vagrant.configure('2') do |config|
     end
   end
 
-  # run ruby and puppet bootstrap
+  # bootstrap ruby&puppet or docker&docker
   servers['vagrant'].each do |name, server_config|
-    config.vm.provision :shell, :inline => "echo 'starting bootstrap ruby and puppet...'"
     dir = File.expand_path("..", __FILE__)
-    puts "DIR_cm: #{dir}"
+#    puts "DIR_cm: #{dir}"
 
     config.vm.define name do |host|
       if name == "hpa-hq1"
+        host.vm.provision :shell, :inline => "echo 'starting bootstrap ruby and puppet...'"
         host.vm.provision :shell, path: File.join(dir,'bootstrap-scripts/bootstrap_ruby.sh'), :privileged => true
         host.vm.provision :shell, path: File.join(dir,'bootstrap-scripts/bootstrap_puppet.sh'), :privileged => true
       elsif name == "hpa-pxm1"
+        host.vm.provision :shell, :inline => "echo 'starting bootstrap ruby and puppet...'"
         host.vm.provision :shell, path: File.join(dir,'bootstrap-scripts/bootstrap_ruby_debian.sh'), :privileged => true
         host.vm.provision :shell, path: File.join(dir,'bootstrap-scripts/bootstrap_puppet.sh'), :privileged => true
+      elsif name == "hpa-f-proxy1"
+        host.vm.provision "docker-install", type: "shell", path: File.join(dir,'bootstrap-scripts//bootstrap-docker.sh'), privileged: false
+      end
+    end
+  end
+
+$script_compose_status = <<SCRIPT3
+echo "Showing status of traefik-stack compose..."
+sleep 120
+cd /etc/docker/compose/traefik-stack && docker-compose ps
+SCRIPT3
+
+  # copy and run docker-compose
+  servers['vagrant'].each do |name, server_config|
+    dir = File.expand_path("..", __FILE__)
+
+    config.vm.define name do |host|
+      if name == "hpa-f-proxy1"
+
+        host.vm.provision "compose-files",
+          type: "shell",
+          :inline => "mkdir -p /etc/docker/compose/traefik-stack && cp /vagrant/configs-servers/hpa-f-proxy1/docker-files/traefik-stack.yaml /etc/docker/compose/traefik-stack/docker-compose.yaml",
+          :privileged => true
+
+        host.vm.provision "compose-exec",
+          type: "shell",
+          path: File.join(dir,'bootstrap-scripts/docker-compose-exec.sh'),
+          :privileged => true
+
+        host.vm.provision "status", type: "shell", inline: $script_compose_status, privileged: false
+
+        # Expose http/s port
+#        host.vm.network "forwarded_port", guest: 8080, host: 8081, auto_correct: true
+#
+#        host.vm.provider :libvirt do |v|
+#          v.memory = 2048
+#          v.cpus = 2
+#        end
+
       end
     end
   end
@@ -66,7 +119,7 @@ Vagrant.configure('2') do |config|
 
   servers['vagrant'].each do |name, server_config|
     dir = File.expand_path("..", __FILE__)
-    puts "DIR_cm: #{dir}"
+#    puts "DIR_cm: #{dir}"
 
     config.vm.define name do |host|
       if name == "hpa-hq1"
