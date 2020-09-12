@@ -14,5 +14,6 @@ services:
       - /root/.ssh/id_rsa:/root/.ssh/id_rsa
       - /root/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub
       - /opt/terraform_0.13.2:/opt/terraform_0.13.2
+      - /opt/terraform_0.12.29:/opt/terraform_0.12.29
       - /root/h-platform-automation-core/tf-owncloud:/root/h-platform-automation-core/tf-owncloud
       - /root/h-platform-automation-core/tf-owncloud-docker:/root/h-platform-automation-core/tf-owncloud-docker
