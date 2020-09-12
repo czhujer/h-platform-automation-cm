@@ -72,6 +72,7 @@ Vagrant.configure('2') do |config|
         host.vm.provision :shell, path: File.join(dir,'bootstrap-scripts/bootstrap_puppet.sh'), :privileged => true
       elsif name == "hpa-f-proxy1"
         host.vm.provision "docker-install", type: "shell", path: File.join(dir,'bootstrap-scripts//bootstrap-docker.sh'), privileged: false
+        host.vm.provision "pki-install", type: "shell", path: File.join(dir,'scripts/pki-make-dummy-cert-debian.sh'), args: ["localhost"], :privileged => true
       end
     end
   end
