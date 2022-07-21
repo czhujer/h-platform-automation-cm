@@ -24,7 +24,7 @@ mod 'stm-debconf', '2.3.0'
 
 #mod 'puppetlabs-java', '4.1.0'
 
-mod 'puppet-archive', '4.4.0'
+mod 'puppet-archive', '4.6.0'
 
 #mod 'puppet-zypprepo', '2.2.2'
 
