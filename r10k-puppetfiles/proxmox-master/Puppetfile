@@ -39,7 +39,7 @@ mod 'puppet-archive', '4.4.0'
 
 mod 'puppetlabs-vcsrepo', '3.0.0'
 
-mod 'puppet-nginx', '0.14.0'
+mod 'puppet-nginx', '0.16.0'
 
 # mod 'puppet-selinux', '3.0.0'
 
