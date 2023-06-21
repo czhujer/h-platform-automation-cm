@@ -47,7 +47,7 @@ mod 'thias-php', '1.2.2'
 
 mod 'arioch-redis', '3.3.0'
 
-mod 'herculesteam-augeasproviders_core', '2.2.0'
+mod 'herculesteam-augeasproviders_core', '2.7.0'
 
 mod 'herculesteam-augeasproviders_sysctl', '2.2.1'
 
