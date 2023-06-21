@@ -41,7 +41,7 @@ mod 'puppetlabs-concat', '5.1.0'
 
 mod 'puppet-staging', '3.2.0'
 
-mod 'thias-php', '1.2.2'
+mod 'thias-php', '1.2.4'
 
 #mod 'example42-monitor', '2.0.4'
 
