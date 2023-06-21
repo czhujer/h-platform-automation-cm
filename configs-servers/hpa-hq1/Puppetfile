@@ -14,7 +14,7 @@ mod 'puppetlabs-stdlib', '5.2.0'
 
 mod 'puppetlabs-inifile', '3.1.0'
 
-mod 'puppet-archive', '4.4.0'
+mod 'puppet-archive', '4.6.0'
 
 # mod 'puppetlabs-java', '5.0.1'
 
