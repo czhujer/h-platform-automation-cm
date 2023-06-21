@@ -35,7 +35,7 @@ mod 'puppet-extlib', '3.0.0'
 
 mod 'puppetlabs-apt', '4.5.1'
 
-mod 'puppetlabs-apache', '3.4.0'
+mod 'puppetlabs-apache', '3.5.0'
 
 mod 'puppetlabs-concat', '5.1.0'
 
