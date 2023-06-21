@@ -34,7 +34,7 @@ mod 'puppetlabs-docker', '3.11.0'
 
 mod 'puppetlabs-reboot', '2.4.0'
 
-mod 'puppetlabs-apt', '7.5.0'
+mod 'puppetlabs-apt', '7.7.1'
 
 mod 'puppetlabs-powershell', '3.0.1'
 
